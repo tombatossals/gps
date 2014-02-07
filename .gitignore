@@ -2,4 +2,5 @@
 .idea/
 .build/
 node_modules/
+public/components
 *.iml
