@@ -35,4 +35,6 @@ if (argv._.length > 2) {
     optional = argv._.slice(2, argv._.length);
 }
 
-action.execute(db, optional);
+action.execute(db, optional).then(function() {
+    db.close();
+});

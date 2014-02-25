@@ -2,5 +2,6 @@
 .idea/
 .build/
 node_modules/
+log/
 public/components
 *.iml

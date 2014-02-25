@@ -28,7 +28,6 @@
     "ssh2": "latest",
     "q": "latest",
     "winston": "latest",
-    "winston-mongodb": "latest",
     "mikronode": "latest"
   },
   "devDependencies": {

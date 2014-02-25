@@ -1,6 +1,6 @@
 {
     "databaseConfig": {
         "host": "localhost",
-        "database": "gps"
+        "database": "troncales"
     }
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-var mongoose = require("mongoose");
+var mongoose = require('mongoose');
 
 var supernodoModel = function() {
     var supernodoSchema = mongoose.Schema({
@@ -43,7 +43,7 @@ var supernodoModel = function() {
         }
     });
 
-    return mongoose.model("Supernodo", supernodoSchema);
-}
+    return mongoose.model('Supernodo', supernodoSchema);
+};
 
 module.exports = new supernodoModel();
