@@ -2,8 +2,8 @@
 
 var mongoose = require('mongoose');
 
-var supernodoModel = function() {
-    var supernodoSchema = mongoose.Schema({
+var nodeModel = function() {
+    var nodeSchema = mongoose.Schema({
         name: {
             type: String,
             required: true,
@@ -43,7 +43,7 @@ var supernodoModel = function() {
         }
     });
 
-    return mongoose.model('Supernodo', supernodoSchema);
+    return mongoose.model('Node', nodeSchema);
 };
 
-module.exports = new supernodoModel();
+module.exports = new nodeModel();

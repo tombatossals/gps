@@ -2,8 +2,8 @@
 
 var mongoose = require('mongoose');
 
-var enlaceModel = function() {
-    var enlaceSchema = new mongoose.Schema({
+var linkModel = function() {
+    var linkSchema = new mongoose.Schema({
         distance: {
             type: String
         },
@@ -19,7 +19,6 @@ var enlaceModel = function() {
         active: {
             type: Boolean
         },
-
         subscriptions : [{
             bandwidth: {
                 type: Number
@@ -28,8 +27,7 @@ var enlaceModel = function() {
                 type: String
             }
         }],
-
-        supernodos: [{
+        nodes: [{
             id: {
                 type: String
             },
@@ -41,7 +39,7 @@ var enlaceModel = function() {
             }
         }],
     });
-    return mongoose.model('Enlace', enlaceSchema);
+    return mongoose.model('Link', linkSchema);
 };
 
-module.exports = new enlaceModel();
+module.exports = new linkModel();
