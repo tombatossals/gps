@@ -13,7 +13,7 @@ db.config(nconf.get('databaseConfig'));
 function check_parameters(argv) {
     var sections = {
         generate: [ "collectd_snmp", "collectd_ping", "collectd_routeros" ],
-        monitor: [ "links" ],
+        monitor: [ "links", "users" ],
         update: [ "interfaces", "links", "bandwidth" ]
     };
 
@@ -37,4 +37,7 @@ if (argv._.length > 2) {
 
 action.execute(db, optional).then(function() {
     db.close();
+    process.exit();
+}).fail(function(error) {
+    console.log("bad finish", error);
 });
