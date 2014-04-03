@@ -1,7 +1,7 @@
 'use strict';
 
-
-var getNodesPublicInfoByName = require('../lib/common').getNodesPublicInfoByName;
+var getNodesByName = require('../lib/common').getNodesByName;
+var getNodesPublicInfo = require('../lib/common').getNodesPublicInfo;
 
 module.exports = function (app) {
 
@@ -9,12 +9,10 @@ module.exports = function (app) {
 
         res.format({
             json: function () {
-                getNodesPublicInfoByName().then(function(nodes) {
-                    res.json(nodes);
+                getNodesByName().then(function(nodes) {
+                    var nodesPublicInfo = getNodesPublicInfo(nodes);
+                    res.json(nodesPublicInfo);
                 });
-            },
-            html: function () {
-                res.render('node', model);
             }
         });
     });

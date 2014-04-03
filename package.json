@@ -28,6 +28,7 @@
     "ssh2": "latest",
     "q": "latest",
     "winston": "latest",
+    "redis-timeseries": "latest",
     "mikronode": "latest"
   },
   "devDependencies": {
@@ -39,6 +40,7 @@
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-jshint": "~0.6.4",
     "grunt-mocha-cli": "~1.5.0",
+    "grunt-contrib-watch": "~0.6.0",
     "grunt-copy-to": "0.0.10"
   }
 }

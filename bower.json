@@ -2,6 +2,9 @@
     "name": "gps",
     "version": "0.0.1",
     "dependencies": {
-        "angular-leaflet-directive": "latest"
+        "angular-leaflet-directive": "latest",
+        "bootflatv2": "latest",
+        "angular-oauth": "latest",
+        "ui": "latest"
     }
 }

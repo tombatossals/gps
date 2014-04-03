@@ -1,0 +1,11 @@
+<nav class="navbar navbar-default navbar-fixed-top topmenu" role="navigation" ng-controller="HeaderController">
+    <div class="container" ng-cloak>
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Troncal de La Plana Alta</a>
+        </div>
+        <div class="collapse navbar-collapse pull-right">
+          <button type="button" class="btn btn-warning navbar-btn" ng-show="!accessToken" ng-click="authenticate()">Sign in</button>
+          <button type="button" class="btn btn-important navbar-btn" ng-show="accessToken" ng-click="logout()">Logout</button>
+        </div>
+    </div>
+</div>

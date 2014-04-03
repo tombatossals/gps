@@ -1,5 +1,5 @@
-{>"layouts/master" /}
+{>"layouts/map-master" /}
 
 {<body}
-    <h1>{@pre type="content" key="greeting"/}</h1>
+    <leaflet center="laplana" markers="nodes" paths="links" layers="layers" url-hash-center="yes"></leaflet>
 {/body}
