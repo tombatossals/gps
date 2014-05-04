@@ -1,0 +1,9 @@
+[{
+  "name"       : "gps",
+  "script"     : "/home/dave/gps/index.js",
+  "instances"  : "1",
+  "error_file" : "/home/dave/gps/log/error.log",
+  "out_file"   : "/home/dave/gps/log/out.log",
+  "exec_mode"  : "cluster_mode",
+  "port"       : 8000
+}]

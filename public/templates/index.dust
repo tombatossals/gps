@@ -1,5 +1,5 @@
-{>"layouts/map-master" /}
+{>"layouts/master" /}
 
 {<body}
-    <leaflet center="laplana" markers="nodes" paths="links" layers="layers" url-hash-center="yes"></leaflet>
+    <leaflet center="center" bounds="bounds" markers="nodes" paths="links" layers="layers"></leaflet>
 {/body}

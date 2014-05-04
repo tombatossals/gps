@@ -4,6 +4,15 @@
             "404": "errors/404",
             "500": "errors/500",
             "503": "errors/503"
+        },
+        "session": {
+            "module": "connect-redis",
+            "config": {
+                "host": "localhost",
+                "port": 6379
+//                "db": 1
+            }
+//            "secret": "ca7d4378fc25d00d43d5dcd114a33586"
         }
 //      "appsec": {
 //        "csrf": true,

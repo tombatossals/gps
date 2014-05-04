@@ -3,10 +3,10 @@
 var util = require("util"),
     db = require('./lib/database'),
     nconf = require('nconf'),
-    optimist = require("optimist"),
-    howtouse = "Usage: $0 [generate [collectd_snmp|collectd_ping|collectd_routeros]|monitor [links|users]|update [interfaces|links]]";
+    yargs = require("yargs"),
+    howtouse = "Usage: $0 <-l level> [generate [collectd_snmp|collectd_ping|collectd_routeros]|monitor [links|users]|update [interfaces|links]]";
 
-nconf.file('config/app.json');
+nconf.file(__dirname + '/config/app.json');
 
 db.config(nconf.get('databaseConfig'));
 
@@ -27,17 +27,29 @@ function check_parameters(argv) {
     return true;
 }
 
-var argv = optimist.usage(howtouse).demand(2).check(check_parameters).argv;
+var argv = yargs.usage(howtouse).alias('l', 'level').demand(2).check(check_parameters).argv;
 var action = require(util.format("./lib/%s_%s", argv._[0], argv._[1]));
 var optional = [];
+
+var logLevel = argv.level,
+    logger = require('./lib/logger').initLogger(logLevel);
 
 if (argv._.length > 2) {
     optional = argv._.slice(2, argv._.length);
 }
 
-action.execute(db, optional).then(function() {
+action.execute(logger, optional).then(function(results) {
+    for (var i in results) {
+        var res = results[i];
+        if (res.state === 'rejected') {
+            logger.warn(res.reason);
+        } else {
+            logger.debug(res.value);
+        }
+    }
+}).done(function() {
     db.close();
-    process.exit();
-}).fail(function(error) {
-    console.log("bad finish", error);
+    setTimeout(function() {
+        process.exit(-1);
+    }, 3000);
 });

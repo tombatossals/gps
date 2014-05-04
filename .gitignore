@@ -3,5 +3,6 @@
 .build/
 node_modules/
 log/
+backup/
 public/components
 *.iml

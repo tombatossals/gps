@@ -11,13 +11,16 @@ html,body {
     height: 100%;
 }
 
-.navbar-default {
-    border: 1px solid #888;
+[ng\:cloak], [ng-cloak], .ng-cloak {
+    display: none !important;
+}
+
+.form-search input.search-query {
+    padding-left: 40px;
 }
 
 .navbar-default a.navbar-brand {
     font-size: 2em;
-    color: #444;
     font-weight: bold;
 }
 
@@ -25,14 +28,11 @@ img.graph {
     width: 400px;
 }
 
-.navbar-fixed-top {
-    top: 10px;
-    width: 70%;
-    margin: auto;
-    opacity: .9;
-    border-radius: 8px;
+.navbar {
+    width: 90%;
 }
 
-.topmenu {
-    padding: 0 1em;
+div.aside {
+    width: 25%;
+    background: #f1f2f6;
 }

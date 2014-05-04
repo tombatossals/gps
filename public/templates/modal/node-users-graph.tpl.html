@@ -1,0 +1,23 @@
+<div class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" ng-show="title">
+        <button type="button" class="close" ng-click="$hide()">&times;</button>
+        <h4 class="modal-title">User connection graphs</h4>
+      </div>
+      <div class="modal-body">
+        <h4>Daily</h4>
+        <p><img ng-src="/graph/users/{{ aside.data.name }}" /></p>
+        <h4>Weekly</h4>
+        <p><img ng-src="/graph/users/{{ aside.data.name }}?interval=weekly" /></p>
+        <h4>Monthly</h4>
+        <p><img ng-src="/graph/users/{{ aside.data.name }}?interval=monthly" /></p>
+        <h4>Yearly</h4>
+        <p><img ng-src="/graph/users/{{ aside.data.name }}?interval=year" /></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" ng-click="$hide()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

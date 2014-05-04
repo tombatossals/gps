@@ -1,0 +1,25 @@
+<div class="aside" tabindex="-1" role="dialog">
+  <div class="aside-dialog">
+    <div class="aside-content">
+      <div class="aside-header">
+        <button type="button" class="close" ng-click="$hide()">&times;</button>
+        <h4 class="aside-title" ng-bind="'Link ' + aside.data.name"></h4>
+      </div>
+      <div class="aside-body">
+        <a class="btn btn-info pull-right" ng-click="$hide()">Edit details</a>
+        <h4>Information</h4>
+        <p><strong>Name:</strong> {{ aside.data.name }}</p>
+        <p><strong>Distance:</strong> {{ aside.data.distance }} meters.</p>
+        <br />
+        <h4>Nodes</h4>
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="node in aside.data.nodesInfo"><a ng-href="#/node/{{ node.name }}" data-title="{{ node.name }}" data-content="{{ node.ip }}" bs-popover data-trigger="hover" ng-bind="node.name"></a></li>
+        </ul>
+        <h4>Graphs</h4>
+        <ul class="list-group">
+            <li class="list-group-item"><span class="badge badge-danger">9.8Mbits</span><a href="#" ng-click="showBandwidthGraphs()" bs-popover data-trigger="hover" data-content="Click for details" data-placement="bottom">Average bandwidth</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

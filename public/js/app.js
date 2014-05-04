@@ -2,15 +2,30 @@
 
 // Declare app level module which depends on filters, and services
 angular.module('gps', [
-  'ngRoute',
-  //'gps.filters',
-  //'gps.services',
-  //'gps.directives',
-  'gps.controllers'
+  'ngAnimate',
+  'gps.services',
+  'gps.controllers',
+  'mgcrea.ngStrap'
 ]).
-config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'});
-  $routeProvider.when('/view2', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2'});
-  $routeProvider.otherwise({redirectTo: '/view1'});
-}]);
+run(['$rootScope', '$window', 'sessionService', function ($rootScope, $window, sessionService) {
+    $rootScope.session = sessionService;
+    $window.app = {
+        authState: function(state, user) {
+            $rootScope.$apply(function() {
+                switch (state) {
+                    case 'success':
+                        sessionService.authSuccess(user);
+                        break;
+                    case 'failure':
+                        sessionService.authFailed();
+                        break;
+                }
 
+            });
+        }
+    };
+
+    if ($window.user) {
+        sessionService.authSuccess($window.user);
+    }
+}]);

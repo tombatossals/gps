@@ -1,6 +1,6 @@
 'use strict';
 
-var getLinksByNodes = require('../lib/common').getLinksByNodes;
+var getLinkByNodes = require('../lib/common').getLinkByNodes;
 var getNodesByName = require('../lib/common').getNodesByName;
 var getNodesPublicInfo = require('../lib/common').getNodesPublicInfo;
 var fs = require('fs');
@@ -8,7 +8,57 @@ var exec = require('child_process').exec;
 
 module.exports = function (app) {
 
-    app.get('/graph/:n1/:n2', function (req, res) {
+    app.get('/graph/users/:nodeName', function(req, res) {
+
+        var nodeName = req.params.nodeName;
+        var interval = req.query.interval;
+
+        getNodesByName([ nodeName ]).then(function(nodes) {
+            var a = "/var/lib/collectd/" + nodeName + "/node/connected_users.rrd";
+            if (!fs.existsSync(a)) {
+                res.send(404);
+                return;
+            }
+
+            var start = -86400;
+            var step = 1200;
+            if (interval == "weekly") {
+                start = -604800;
+                step = 3600*2;
+            } else if (interval == "monthly") {
+                start = -18144000;
+                step = 3600*24;
+            } else if (interval == "year") {
+                start = -31536000;
+                step = 3600*24*7;
+            }
+
+            var command = '/usr/bin/rrdtool graph - --imgformat=PNG ' +
+                          '--start=' + start + ' --end=now ' +
+                          '--title="' + nodeName + ' - Connected users" ' +
+                          '--step=' + step + ' --base=1000 --height=140 --width=480 ' +
+                          '--alt-autoscale-max --lower-limit="0" ' +
+                          '--vertical-label="bits per second" --font TITLE:10: ' +
+                          '--font AXIS:7: --font LEGEND:8: --font UNIT:7: ' +
+                          'DEF:a="' + a + '":"good":MAX:step=1200 ' +
+                          'DEF:b="' + a + '":"bad":MAX:step=1200 ' +
+                          'AREA:b#EA644A:"Connected users (bad signal)": ' +
+                          'LINE:b#CC3118 ' +
+                          'GPRINT:b:LAST:"Last %.0lf" ' +
+                          'GPRINT:b:MAX:"Max %.0lf" ' +
+                          'GPRINT:b:MIN:"Min %.0lf\\n" ' +
+                          'AREA:a#54EC48:"Connected users (good signal)":STACK  ' +
+                          'GPRINT:a:LAST:"Last %.0lf" ' +
+                          'GPRINT:a:MAX:"Max %.0lf" ' +
+                          'GPRINT:a:MIN:"Min %.0lf\\n"';
+            exec(command, { encoding: 'binary', maxBuffer: 5000*1024 }, function(error, stdout, stderr) {
+                res.type('png');
+                res.send(new Buffer(stdout, 'binary'));
+            });
+        });
+    });
+
+    app.get('/graph/bandwidth/:n1/:n2', function (req, res) {
 
         var nodeName1 = req.params.n1;
         var nodeName2 = req.params.n2;
@@ -16,16 +66,16 @@ module.exports = function (app) {
 
         getNodesByName([nodeName1, nodeName2]).then(function(nodes) {
             if (nodes.length !== 2) {
-                throw err;
+                throw "Link nodes not found";
                 return;
             }
 
             var n1 = nodes[0],
                 n2 = nodes[1];
 
-            getLinksByNodes(nodes).then(function(link) {
+            getLinkByNodes(nodes).then(function(link) {
                 if (!link) {
-                    throw err;
+                    throw "Link not found";
                 }
 
                 var a = "/var/lib/collectd/" + n1.name + "/links/bandwidth-" + n2.name + ".rrd",
