@@ -4,17 +4,19 @@ var util = require("util"),
     db = require('./lib/database'),
     nconf = require('nconf'),
     yargs = require("yargs"),
-    howtouse = "Usage: $0 <-l level> [generate [collectd_snmp|collectd_ping|collectd_routeros]|monitor [links|users]|update [interfaces|links]]";
+    howtouse = "Usage: $0 <-l level> [ping [nodes]|generate [collectd_snmp|collectd_ping|collectd_routeros]|monitor [links|users|path]|update [interfaces|links|bandwidth|routing|sysinfo|ospf]|add [node|link] <file.json>]";
 
 nconf.file(__dirname + '/config/app.json');
 
 db.config(nconf.get('databaseConfig'));
 
-function check_parameters(argv) {
+var check_parameters = function(argv) {
     var sections = {
         generate: [ "collectd_snmp", "collectd_ping", "collectd_routeros" ],
-        monitor: [ "links", "users" ],
-        update: [ "interfaces", "links", "bandwidth" ]
+        monitor: [ "links", "users", "path" ],
+        update: [ "interfaces", "links", "bandwidth", "routing", "sysinfo", "ospf" ],
+        add: [ "node", "link" ],
+        ping: [ "nodes" ]
     };
 
     var section = argv._[0];
@@ -24,8 +26,12 @@ function check_parameters(argv) {
         return false;
     }
 
+    if (section === "add" && argv._.length !== 3) {
+        return false;
+    }
+
     return true;
-}
+};
 
 var argv = yargs.usage(howtouse).alias('l', 'level').demand(2).check(check_parameters).argv;
 var action = require(util.format("./lib/%s_%s", argv._[0], argv._[1]));
@@ -38,7 +44,11 @@ if (argv._.length > 2) {
     optional = argv._.slice(2, argv._.length);
 }
 
-action.execute(logger, optional).then(function(results) {
+setTimeout(function() {
+    process.exit();
+}, 1800000);
+
+action.execute(optional).then(function(results) {
     for (var i in results) {
         var res = results[i];
         if (res.state === 'rejected') {

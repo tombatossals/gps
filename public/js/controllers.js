@@ -37,7 +37,7 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
         bounds: [],
         links: {},
         gps: false,
-        neighbours: [],
+        neighbors: [],
         layers: {
             baselayers: {
                 googleHybrid: {
@@ -222,6 +222,7 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
     };
 
     var df = $q.defer();
+/*
     $scope.$on('$locationChangeSuccess', function(value) {
         var path = $location.path(),
             params = $location.search(),
@@ -279,8 +280,8 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
                         colorizeNodeIcon($scope.nodes[item]);
                     });
 
-                    $http.get("/api/node/" + item + "/neighbours").success(function(neighbours) {
-                        $scope.aside.data.neighbours = neighbours;
+                    $http.get("/api/node/" + item + "/neighbors").success(function(neighbors) {
+                        $scope.aside.data.neighbors = neighbors;
                     });
 
                     current = {
@@ -320,30 +321,115 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
         }
     });
 
+*/
+
     $http.get("/api/node/").success(function(nodes) {
-        $scope.nodes = nodes;
+        for (var i in nodes) {
+            var node = nodes[i];
+
+            var message = '<div class="panel panel-primary">' +
+                          '<div class="panel-heading">' +
+                          '<h3 class="panel-title">' + node.name + '</h3>' +
+                          '</div>' +
+                          '<div class="panel-body">' +
+                          '<table class="table">' +
+                          '<tr>' +
+                          '<td>IP</td>' +
+                          '<td>' + node.ip + '</td>' +
+                          '</tr>' +
+                          '<tr>' +
+                          '<td>Active routes<br />Inactive routes</td>' +
+                          '<td>' + node.routing.active + '<br />' + node.routing.inactive + '</td>' +
+                          '</tr>' +
+                          '<tr>' +
+                          '<td>Uptime<br />Model<br />Version<br />Firmware</td>' +
+                          '<td>' + node.sysinfo.uptime + '<br />' + node.sysinfo.model + '<br />' + node.sysinfo.version + '<br />' + node.sysinfo.firmware + '</td>' +
+                          '</tr>' +
+                          '<tr>' +
+                          '<td>OSPF Instance<br />State<br />RouterId<br />Dijkstras</td>' +
+                          '<td><br />' + node.ospf.state + '<br />' + node.ospf.routerId + '<br />' + node.ospf.dijkstras + '</td>' +
+                          '</tr>' +
+                          '<tr>';
+
+            if (node.omnitik) {
+                message += '<td>Connected users</td>' +
+                           '<td>' + node.connectedUsers + '</td>' +
+                           '</tr>'
+            }
+
+            message +=    '</table>' +
+                          '<img class="graph" src="/graph/ping/' + node.name + '">' +
+                          '</div>' +
+                          '</div>';
+
+            var marker = {
+                icon: {
+                    type: 'awesomeMarker',
+                    icon: 'star',
+                    markerColor: 'blue',
+                    labelAnchor: [10, -24]
+                },
+                label: {
+                    message: message,
+                    direction: 'auto'
+                },
+                riseOnHover: true,
+                lat: node.lat,
+                lng: node.lng,
+                name: node.name
+            };
+
+            $scope.nodes[node.name] = marker;
+        }
 
         $http.get("/api/link/").success(function(links) {
             angular.forEach(links, function(link) {
-                var n1 = link.nodes[0].name;
-                var n2 = link.nodes[1].name;
-                var l1 = getNodeLatLng(link.nodes[0].name);
-                var l2 = getNodeLatLng(link.nodes[1].name);
+                var n1 = link.nodes[0]
+                var n2 = link.nodes[1];
+                var l1 = getNodeLatLng(n1.name);
+                var l2 = getNodeLatLng(n2.name);
                 var weight = link.bandwidth/5 + 2;
                 if (weight > 10) {
                     weight = 10;
                 }
-                $scope.links[n1 + "_" + n2] = {
+
+                var message = '<div class="panel panel-primary">' +
+                          '<div class="panel-heading">' +
+                          '<h3 class="panel-title">' + n1.name + '-' + n2.name + ' (' + (link.distance/1000) + 'km) </h3>' +
+                          '</div>' +
+                          '<div class="panel-body">' +
+                          '<table class="table">';
+
+                if (n1.ospf) {
+                    message += '<tr>' +
+                               '<td>OSPF ' + n1.name + '<br />State<br />Adjacency</br>State changes</td>' +
+                               '<td><br />' + n1.ospf.state + '<br />' + n1.ospf.adjacency + '<br />' + n1.ospf.stateChanges + '</td>' +
+                               '</tr>';
+                }
+
+                if (n2.ospf) {
+                    message += '<tr>' +
+                               '<td>OSPF ' + n2.name + '<br />State<br />Adjacency</br>State changes</td>' +
+                               '<td><br />' + n2.ospf.state + '<br />' + n2.ospf.adjacency + '<br />' + n2.ospf.stateChanges + '</td>' +
+                               '</tr>';
+                }
+
+
+                message += '</table><img class="graph" src="/graph/bandwidth/' + n1.name + '/' + n2.name + '">' +
+                           '</div>' +
+                           '</div>';
+
+                $scope.links[n1.name + "_" + n2.name] = {
                     id: link._id,
                     type: "polyline",
                     weight: weight,
                     color: saturationColor[link.saturation],
                     saturation: link.saturation,
                     label: {
-                        message: '<h4 style="margin: 0;">' + n1 + '-' + n2 + '</h4><img class="graph" src="/graph/bandwidth/' + n1 + '/' + n2 + '">'
+                        message: message
                     },
                     opacity: 0.9,
-                    name: n1 + "-" + n2,
+                    name: n1.name + "-" + n2.name,
                     distance: link.distance,
                     nodes: [ link.nodes[0].name, link.nodes[1].name ],
                     latlngs: [ l1, l2 ]

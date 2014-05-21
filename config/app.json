@@ -7,7 +7,7 @@
         "GOOGLE_CLIENT_ID": "822966515694-71u2kctku5531996h9vmtu707mms93v4.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "UZovKSUn0_zwGBposP7_y1qs"
     },
-    "port": 8001,
+    "port": 8000,
     "bcrypt": {
         "difficulty": 8
     }

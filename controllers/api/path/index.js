@@ -1,17 +1,17 @@
 'use strict';
 
-var getLinks = require('../lib/common').getLinks,
-    getNodesByName = require('../lib/common').getNodesByName,
-    getNodesPublicInfo = require('../lib/common').getNodesPublicInfo,
-    getLinkByIPs = require('../lib/common').getLinkByIPs,
-    mikrotikTraceroute = require('../lib/mikrotik').traceroute,
-    openwrtTraceroute = require('../lib/openwrt').traceroute,
+var getLinks = require('../../../lib/common').getLinks,
+    getNodesByName = require('../../../lib/common').getNodesByName,
+    getNodesPublicInfo = require('../../../lib/common').getNodesPublicInfo,
+    getLinkByIPs = require('../../../lib/common').getLinkByIPs,
+    mikrotikTraceroute = require('../../../lib/mikrotik').traceroute,
+    openwrtTraceroute = require('../../../lib/openwrt').traceroute,
     Q = require('q');
 
 
-module.exports = function (app) {
+module.exports = function (router) {
 
-    app.get('/api/path/:n1/:n2', function(req, res) {
+    router.get('/:n1/:n2', function(req, res) {
         var n1 = req.params.n1;
         var n2 = req.params.n2;
         getNodesByName([ n1, n2 ]).then(function(nodes) {
@@ -24,8 +24,8 @@ module.exports = function (app) {
                 return;
             }
 
-            var traceroute = undefined;
-            if (n1.system === "mikrotik") {
+            var traceroute;
+            if (n1.system === 'mikrotik') {
                 traceroute = mikrotikTraceroute;
             } else {
                 traceroute = openwrtTraceroute;
@@ -36,14 +36,15 @@ module.exports = function (app) {
                     res.send(404);
                     return;
                 }
-                var eips = [];
+                var eips = [],
+                    i;
                 eips.push([ n1.mainip, path[0] ]);
-                for (var i = 0; i < path.length - 1; i++) {
+                for (i = 0; i < path.length-1; i++) {
                     eips.push([path[i], path[i + 1]]);
                 }
                 var enlaces = [];
                 var promises = [];
-                for (var i in eips) {
+                for (i in eips) {
                     var ippair = eips[i];
                     promises.push(getLinkByIPs(ippair));
                 }

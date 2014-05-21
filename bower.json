@@ -7,8 +7,12 @@
         "bootflatv2": "2.0.1",
         "angular-oauth": "latest",
         "bootstrap-additions": "latest",
+        "Leaflet.label": "latest",
+        "leaflet-plugins": "latest",
+        "Leaflet.awesome-markers": "latest",
         "angular-strap": "latest",
         "angular-motion": "latest",
+        "angular-route": "latest",
         "angular-animate": "latest"
     }
 }

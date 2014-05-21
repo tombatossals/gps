@@ -36,6 +36,11 @@ var linkModel = function() {
             },
             iface: {
                 type: String
+            },
+            ospf: {
+                adjacency: String,
+                state: String,
+                stateChanges: Number
             }
         }],
     });

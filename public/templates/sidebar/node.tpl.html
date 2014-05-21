@@ -18,11 +18,11 @@
         <br />
         <h4>Links</h4>
         <ul class="list-group">
-            <li class="list-group-item" ng-repeat="neighbour in aside.data.neighbours"><a ng-href="#/link/{{ aside.data.name }}/{{ neighbour }}" ng-bind="aside.data.name + '-' + neighbour"></a></li>
+            <li class="list-group-item" ng-repeat="neighbor in aside.data.neighbors"><a ng-href="#/link/{{ aside.data.name }}/{{ neighbor }}" ng-bind="aside.data.name + '-' + neighbor"></a></li>
         </ul>
-        <h4>Neighbours</h4>
+        <h4>Neighbors</h4>
         <ul class="list-group">
-            <li class="list-group-item" ng-repeat="neighbour in aside.data.neighbours"><a ng-href="#/node/{{ neighbour }}" data-title="{{ neighbour }}" data-content="{{ nodes[neighbour].ip }}" bs-popover data-trigger="hover" ng-bind="neighbour"></a></li>
+            <li class="list-group-item" ng-repeat="neighbor in aside.data.neighbors"><a ng-href="#/node/{{ neighbor }}" data-title="{{ neighbor }}" data-content="{{ nodes[neighbor].ip }}" bs-popover data-trigger="hover" ng-bind="neighbor"></a></li>
         </ul>
         <div ng-show="aside.data.omnitik">
             <h4>Graphs</h4>

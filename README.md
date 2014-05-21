@@ -1,3 +1,3 @@
 # gps
 
-"Mikrotik wireless Link Monitoring"
+gps

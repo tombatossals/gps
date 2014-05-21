@@ -18,6 +18,9 @@ var nodeModel = function() {
         mainip: {
             type: String
         },
+        connectedUsers: {
+            type: Number
+        },
         latlng: {
             lat: Number,
             lng: Number
@@ -40,6 +43,23 @@ var nodeModel = function() {
         },
         system: {
             type: String
+        },
+        routing: {
+            total: Number,
+            active: Number,
+            inactive: Number
+        },
+        sysinfo: {
+            model: String,
+            version: String,
+            poe: String,
+            firmware: String,
+            uptime: String
+        },
+        ospf: {
+            routerId: String,
+            dijkstras: Number,
+            state: String
         }
     });
 

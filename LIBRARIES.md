@@ -7,3 +7,5 @@
 * cube http://square.github.io/cube/
 * http://mdo.github.io/code-guide/
 * http://mgcrea.github.io/angular-strap/
+* http://c3js.org
+* http://tympanus.net/Development/SidebarTransitions/
