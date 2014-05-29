@@ -1,18 +1,21 @@
 {
-    "name": "gps",
-    "version": "0.0.1",
-    "dependencies": {
-        "angular": "latest",
-        "angular-leaflet-directive": "latest",
-        "bootflatv2": "2.0.1",
-        "angular-oauth": "latest",
-        "bootstrap-additions": "latest",
-        "Leaflet.label": "latest",
-        "leaflet-plugins": "latest",
-        "Leaflet.awesome-markers": "latest",
-        "angular-strap": "latest",
-        "angular-motion": "latest",
-        "angular-route": "latest",
-        "angular-animate": "latest"
-    }
+  "name": "gps",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular": "latest",
+    "angular-leaflet-directive": "latest",
+    "bootflatv2": "latest",
+    "angular-oauth": "latest",
+    "bootstrap-additions": "latest",
+    "Leaflet.label": "latest",
+    "leaflet-plugins": "latest",
+    "Leaflet.awesome-markers": "latest",
+    "angular-strap": "latest",
+    "angular-motion": "latest",
+    "angular-route": "latest",
+    "angular-animate": "latest"
+  },
+  "resolutions": {
+    "angular": "1.2.16"
+  }
 }

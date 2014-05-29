@@ -5,7 +5,7 @@
       <form class="navbar-form navbar-right" role="search">
           <div class="form-search search-only">
               <i class="search-icon glyphicon glyphicon-search"></i>
-              <input type="text" class="form-control search-query" ng-model="selectedNode" data-animation="am-flip-x" ng-options="node.text for node in nodes" placeholder="Search node..." data-sort="true" bs-typeahead>
+              <input type="text" class="form-control search-query" ng-model="selectedNode" data-animation="am-flip-x" ng-options="node for node in nodes" placeholder="Search node..." bs-typeahead>
           </div>
       </form>
     </div>

@@ -4,11 +4,13 @@
 
 var app = angular.module('gps.controllers', ['leaflet-directive', 'googleOauth']);
 
-app.controller('HeaderController', [ '$rootScope', '$scope', '$window', '$location', '$http', function($rootScope, $scope, $window, $location, $http) {
+app.controller('HeaderController', [ '$rootScope', '$scope', '$location', '$http', function($rootScope, $scope, $location, $http) {
 
     $scope.nodes = [];
     $http.get('/api/node/search').success(function(items) {
-        $scope.nodes = items;
+        for (var i in items) {
+            $scope.nodes.push(items[i].text);
+        }
     });
 
     $scope.dropdown = [
@@ -20,13 +22,14 @@ app.controller('HeaderController', [ '$rootScope', '$scope', '$window', '$locati
 
     $scope.selectedNode = undefined;
     $scope.$watch('selectedNode', function(value) {
-        if (typeof value === "object" && value.id) {
-            $location.url("/node/" + value.id);
+        if ($scope.nodes.indexOf(value) !== -1) {
+            $location.url("/node/" + value);
         }
     });
 }]);
 
-app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$modal', '$alert', '$q', 'leafletData', 'leafletBoundsHelpers', function($scope, $http, $location, $aside, $modal, $alert, $q, leafletData, leafletBoundsHelpers) {
+app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$routeParams', '$aside', '$modal', '$alert', '$q', 'leafletData', 'leafletBoundsHelpers', function($scope, $http, $timeout, $location, $routeParams, $aside, $modal, $alert, $q, leafletData, leafletBoundsHelpers) {
+
     angular.extend($scope, {
         center: {
             lat: 40.000531,
@@ -63,10 +66,6 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
         }
     });
 
-    $scope.$on("centerUrlHash", function(event, centerHash) {
-        $location.search({ c: centerHash });
-    });
-
     var saturationColor = {
         0: "#491",
         1: "#FFFF00",
@@ -78,15 +77,53 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
         return { lat: $scope.nodes[nodeName].lat, lng: $scope.nodes[nodeName].lng };
     };
 
-    $scope.$on('leafletDirectivePath.click', function(event, link) {
-        console.log($scope.aside.section);
-        if ($scope.aside.section === "link" && !$scope.aside.visible) {
-            $scope.aside.aside.$promise.then(function() {
-                $scope.aside.aside.show();
-                $scope.aside.visible = true;
-            });
+    $scope.resetActive = function() {
+        $scope.active.color = $scope.active.activeColor;
+        $scope.active = undefined;
+    }
+
+    $scope.$on('leafletDirectivePath.mouseout', function(event, link) {
+        var link = $scope.links[link.pathName];
+        if ($scope.active.name !== link.name) {
+            link.color = link.activeColor;
         }
+    });
+
+    $scope.$on('leafletDirectivePath.mouseover', function(event, link) {
+        var link = $scope.links[link.pathName];
+        link.color = "#FFF";
+    });
+
+    $scope.$on('leafletDirectivePath.click', function(event, link) {
+        if ($scope.active) {
+            $scope.active.color = $scope.active.activeColor;
+        }
+
+        $scope.active = $scope.links[link.pathName];
+        $scope.active.color = "#FFF";
+        var n1 = $scope.nodes[$scope.active.nodes[0]];
+        var n2 = $scope.nodes[$scope.active.nodes[1]];
+
+        $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
         $location.url("/link/" + link.pathName.replace('_', '/'));
+    });
+
+    $scope.$on('leafletDirectiveMarker.click', function(event, node) {
+        if ($scope.active) {
+            $scope.active.color = $scope.active.activeColor;
+        }
+
+        if ($scope.gps) {
+            clickGPS($scope.aside.data.name, node.markerName);
+            return;
+        }
+        $scope.active = $scope.nodes[node.markerName];
+        $scope.center = {
+            lat: $scope.active.lat,
+            lng: $scope.active.lng,
+            zoom: 16
+        };
+        $location.url("/node/" + node.markerName);
     });
 
     var clickGPS = function(n1, n2) {
@@ -107,6 +144,7 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
         }
         return nodes;
     };
+
     var initGPS = function() {
         var path = $location.path(),
             pattern = /path\/(\w+)\/?(\w+)?/,
@@ -124,7 +162,6 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
                     var node = nodes[i];
                     points.push([$scope.nodes[node].lat, $scope.nodes[node].lng ]);
                 }
-                console.log(points);
                 map.fitBounds(points);
             });
 
@@ -149,55 +186,12 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
         });
     };
 
-    $scope.$on('leafletDirectiveMarker.click', function(event, node) {
-        if ($scope.gps) {
-            clickGPS($scope.aside.data.name, node.markerName);
-            return;
-        }
-
-        if ($scope.aside.section === "node" && !$scope.aside.visible) {
-            $scope.aside.aside.$promise.then(function() {
-                $scope.aside.aside.show();
-                $scope.aside.visible = true;
-            });
-        }
-        $location.url("/node/" + node.markerName);
-    });
-
-    var current = {},
-        linkAside = $aside({scope: $scope, backdrop: false, template: 'templates/aside/link.tpl.html', placement: 'right', show: false}),
-        nodeAside = $aside({scope: $scope, backdrop: false, template: 'templates/aside/node.tpl.html', placement: 'left', show: false});
-
-    $scope.aside = {
-        aside: undefined,
-        section: undefined,
-        data: undefined,
-        visible: false,
-        force: false
-    };
-
+    var current = {};
     var gpsAlert;
     $scope.startGPS = function() {
         gpsAlert = $alert({title: 'Choose the desired destination.', content: 'Click on the node where you want to go from ' + $scope.aside.data.name + '.', placement: 'top-right', type: 'success', show: true});
         $scope.gps = true;
     };
-
-    $scope.showUserGraphs = function() {
-        var modal = $modal({ scope: $scope, title: "User connection graphs", template: "templates/modal/node-users-graph.tpl.html", show: true});
-    };
-
-    $scope.showBandwidthGraphs = function() {
-        var modal = $modal({ scope: $scope, title: "Link bandwidth graphs", template: "templates/modal/link-bandwidth-graph.tpl.html", show: true});
-    };
-
-    var visible = false;
-    $scope.$on("modal.show", function() {
-        $scope.aside.visible = true;
-    });
-
-    $scope.$on("modal.hide", function() {
-        $scope.aside.visible = false;
-    });
 
     var colorizeLink = function(activeLink) {
         angular.forEach($scope.links, function(link) {
@@ -221,146 +215,36 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
         });
     };
 
-    var df = $q.defer();
-/*
-    $scope.$on('$locationChangeSuccess', function(value) {
-        var path = $location.path(),
-            params = $location.search(),
-            pattern = /(node|link)\/(\w+)\/?(\w+)?/;
-
-        if ((path === "/" + current.section + "/" + current.item) && path.match(pattern)) {
-            return;
+    var setActiveElement = function() {
+        if ($routeParams.node) {
+            $scope.active = $scope.nodes[$routeParams.node];
+            $scope.center = {
+                lat: $scope.active.lat,
+                lng: $scope.active.lng,
+                zoom: 16
+            };
         }
 
-        if (path.match('/path/')) {
-            initGPS();
-            return;
-        }
-
-        if (path.match(pattern)) {
-            if (path.match(pattern)[1] === 'link' && $scope.aside.section !== 'link') {
-                if ($scope.aside.aside) {
-                    $scope.aside.aside.hide();
-                    $scope.aside.visible = false;
-                }
-                $scope.aside.aside = linkAside;
+        if ($routeParams.n1 && $routeParams.n2) {
+            var n1 = $routeParams.n1;
+            var n2 = $routeParams.n2;
+            $scope.active = $scope.links[n1 + "_" + n2];
+            if (!$scope.active) {
+                $scope.active = $scope.links[n2 + "_" + n1];
             }
+            $scope.active.color = "#FFF";
 
-            if (path.match(pattern)[1] === 'node' && $scope.aside.section !== 'node') {
-                if ($scope.aside.aside) {
-                    $scope.aside.aside.hide();
-                    $scope.aside.visible = false;
-                }
-                $scope.aside.aside = nodeAside;
-            }
-
-            $scope.aside.section = path.match(pattern)[1];
-            if (!$scope.aside.visible) {
-                $scope.aside.aside.$promise.then(function() {
-                    $scope.aside.aside.show();
-                    $scope.aside.visible = true;
-                });
-            }
+            var n1 = $scope.nodes[$scope.active.nodes[0]];
+            var n2 = $scope.nodes[$scope.active.nodes[1]];
+            $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
         }
-
-        if ((path !== "/" + current.section + "/" + current.item) && path.match(pattern)) {
-            var section = path.match(pattern)[1];
-
-            df.promise.then(function() {
-                if ($scope.aside.section === 'node') {
-                    var item = path.match(pattern)[2];
-                    $scope.aside.data = $scope.nodes[item];
-                    $scope.aside.aside.$promise.then(function() {
-                        $scope.center = {
-                            lat: $scope.nodes[item].lat,
-                            lng: $scope.nodes[item].lng,
-                            zoom: 17
-                        };
-
-                        colorizeNodeIcon($scope.nodes[item]);
-                    });
-
-                    $http.get("/api/node/" + item + "/neighbors").success(function(neighbors) {
-                        $scope.aside.data.neighbors = neighbors;
-                    });
-
-                    current = {
-                        section: "node",
-                        item: item
-                    };
-
-                } else {
-                    var item = path.match(pattern)[2] + '_' + path.match(pattern)[3];
-                    if (!$scope.links.hasOwnProperty(item)) {
-                        item = path.match(pattern)[3] + '_' + path.match(pattern)[2];
-                    }
-                    $scope.aside.data = $scope.links[item];
-                    var n1 = $scope.aside.data.nodes[0],
-                        n2 = $scope.aside.data.nodes[1];
-                    $http.get("/api/link/" + n1 + '/' + n2 + "/nodes").success(function(nodes) {
-                        $scope.aside.data.nodesInfo = nodes;
-                        $scope.aside.aside.$promise.then(function() {
-                            var a = nodes[n1].lat.toFixed(4);
-                            $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([
-                                [nodes[n1].lat.toFixed(4)/1, nodes[n1].lng.toFixed(4)/1],
-                                [nodes[n2].lat.toFixed(4)/1, nodes[n2].lng.toFixed(4)/1]
-                            ]);
-
-                            colorizeLink($scope.links[item]);
-                        });
-
-                    });
-
-                    current = {
-                        section: "link",
-                        item: item
-                    };
-
-                }
-            });
-        }
-    });
-
-*/
+    };
 
     $http.get("/api/node/").success(function(nodes) {
         for (var i in nodes) {
             var node = nodes[i];
 
-            var message = '<div class="panel panel-primary">' +
-                          '<div class="panel-heading">' +
-                          '<h3 class="panel-title">' + node.name + '</h3>' +
-                          '</div>' +
-                          '<div class="panel-body">' +
-                          '<table class="table">' +
-                          '<tr>' +
-                          '<td>IP</td>' +
-                          '<td>' + node.ip + '</td>' +
-                          '</tr>' +
-                          '<tr>' +
-                          '<td>Active routes<br />Inactive routes</td>' +
-                          '<td>' + node.routing.active + '<br />' + node.routing.inactive + '</td>' +
-                          '</tr>' +
-                          '<tr>' +
-                          '<td>Uptime<br />Model<br />Version<br />Firmware</td>' +
-                          '<td>' + node.sysinfo.uptime + '<br />' + node.sysinfo.model + '<br />' + node.sysinfo.version + '<br />' + node.sysinfo.firmware + '</td>' +
-                          '</tr>' +
-                          '<tr>' +
-                          '<td>OSPF Instance<br />State<br />RouterId<br />Dijkstras</td>' +
-                          '<td><br />' + node.ospf.state + '<br />' + node.ospf.routerId + '<br />' + node.ospf.dijkstras + '</td>' +
-                          '</tr>' +
-                          '<tr>';
-
-            if (node.omnitik) {
-                message += '<td>Connected users</td>' +
-                           '<td>' + node.connectedUsers + '</td>' +
-                           '</tr>'
-            }
-
-            message +=    '</table>' +
-                          '<img class="graph" src="/graph/ping/' + node.name + '">' +
-                          '</div>' +
-                          '</div>';
+            var message = '<strong>' + node.name + ' (' + node.ip + ')</strong>';
 
             var marker = {
                 icon: {
@@ -376,7 +260,8 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
                 riseOnHover: true,
                 lat: node.lat,
                 lng: node.lng,
-                name: node.name
+                name: node.name,
+                node: node
             };
 
             $scope.nodes[node.name] = marker;
@@ -393,37 +278,13 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
                     weight = 10;
                 }
 
-                var message = '<div class="panel panel-primary">' +
-                          '<div class="panel-heading">' +
-                          '<h3 class="panel-title">' + n1.name + '-' + n2.name + ' (' + (link.distance/1000) + 'km) </h3>' +
-                          '</div>' +
-                          '<div class="panel-body">' +
-                          '<table class="table">';
-
-                if (n1.ospf) {
-                    message += '<tr>' +
-                               '<td>OSPF ' + n1.name + '<br />State<br />Adjacency</br>State changes</td>' +
-                               '<td><br />' + n1.ospf.state + '<br />' + n1.ospf.adjacency + '<br />' + n1.ospf.stateChanges + '</td>' +
-                               '</tr>';
-                }
-
-                if (n2.ospf) {
-                    message += '<tr>' +
-                               '<td>OSPF ' + n2.name + '<br />State<br />Adjacency</br>State changes</td>' +
-                               '<td><br />' + n2.ospf.state + '<br />' + n2.ospf.adjacency + '<br />' + n2.ospf.stateChanges + '</td>' +
-                               '</tr>';
-                }
-
-
-                message += '</table><img class="graph" src="/graph/bandwidth/' + n1.name + '/' + n2.name + '">' +
-                           '</div>' +
-                           '</div>';
-
+                message = '<img style="width: 380px;" src="/graph/bandwidth/' + n1.name + '/' + n2.name + '">';
                 $scope.links[n1.name + "_" + n2.name] = {
                     id: link._id,
                     type: "polyline",
                     weight: weight,
                     color: saturationColor[link.saturation],
+                    activeColor: saturationColor[link.saturation],
                     saturation: link.saturation,
                     label: {
                         message: message
@@ -432,10 +293,15 @@ app.controller('MapController', [ '$scope', '$http', '$location', '$aside', '$mo
                     name: n1.name + "-" + n2.name,
                     distance: link.distance,
                     nodes: [ link.nodes[0].name, link.nodes[1].name ],
-                    latlngs: [ l1, l2 ]
+                    latlngs: [ l1, l2 ],
+                    link: { n1: n1, n2: n2}
                 };
             });
-            df.resolve();
+
+            setActiveElement();
+            $scope.$on('$locationChangeSuccess', function(event) {
+                $timeout(setActiveElement, 300);
+            });
         });
     });
 }]);

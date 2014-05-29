@@ -8,14 +8,13 @@ angular.module('gps', [
   'gps.controllers',
   'mgcrea.ngStrap'
 ]).
-config(function ($routeProvider) {
-    $routeProvider.when('/', {
-        templateUrl: 'templates/sidebar/main.tpl.html'
-    }).when('/node/:node', {
+config(function ($routeProvider, $locationProvider) {
+    $routeProvider.when('/node/:node', {
         templateUrl: 'templates/sidebar/node.tpl.html'
     }).when('/link/:n1/:n2', {
         templateUrl: 'templates/sidebar/link.tpl.html'
-    })
+    });
+    $locationProvider.html5Mode(false);
 }).
 run(['$rootScope', '$window', 'sessionService', function ($rootScope, $window, sessionService) {
     $rootScope.session = sessionService;

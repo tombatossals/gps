@@ -2,13 +2,18 @@
 
 var util = require("util"),
     db = require('./lib/database'),
-    nconf = require('nconf'),
+    confit = require('confit'),
     yargs = require("yargs"),
+    path = require('path'),
     howtouse = "Usage: $0 <-l level> [ping [nodes]|generate [collectd_snmp|collectd_ping|collectd_routeros]|monitor [links|users|path]|update [interfaces|links|bandwidth|routing|sysinfo|ospf]|add [node|link] <file.json>]";
 
-nconf.file(__dirname + '/config/app.json');
+var options = {
+    basedir: path.join(__dirname, 'config')
+};
 
-db.config(nconf.get('databaseConfig'));
+confit(options).create(function(err, config) {
+    db.config(config.get('databaseConfig'));
+});
 
 var check_parameters = function(argv) {
     var sections = {
