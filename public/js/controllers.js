@@ -84,7 +84,7 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
 
     $scope.$on('leafletDirectivePath.mouseout', function(event, link) {
         var link = $scope.links[link.pathName];
-        if ($scope.active.name !== link.name) {
+        if (!$scope.active || $scope.active.name !== link.name) {
             link.color = link.activeColor;
         }
     });

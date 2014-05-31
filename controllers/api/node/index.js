@@ -18,6 +18,21 @@ module.exports = function (router) {
         });
     });
 
+    router.get('/:nodeName', function (req, res) {
+        var nodeName = req.params.nodeName;
+        getNodesByName([nodeName]).then(function(nodes) {
+            var nodesPublicInfo = getNodesPublicInfo(nodes);
+            res.json(nodesPublicInfo[nodeName]);
+        });
+    });
+
+    router.get('/:nodeName/links', function(req, res) {
+        var nodeName = req.params.nodeName;
+        getLinksByNodeName([nodeName]).then(function(links) {
+            res.send(links);
+        });
+    });
+
     router.get('/:nodeName/neighbors', function(req, res) {
         var nodeName = req.params.nodeName;
         getLinksByNodeName(nodeName).then(function(links) {

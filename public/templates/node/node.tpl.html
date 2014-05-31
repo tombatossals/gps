@@ -1,0 +1,85 @@
+<div class="row">
+    <div class="col-md-offset-1 col-md-6">
+        <h3>Main info</h3>
+        <table class="table table-striped">
+            <tr>
+                <td>Name</td>
+                <td>{{ node.name }}</td>
+            </tr>
+            <tr>
+                <td>IP</td>
+                <td>{{ node.ip }}</td>
+            </tr>
+            <tr>
+                <td>Hardware</td>
+                <td>Model: {{ node.sysinfo.model }}, version: {{ node.sysinfo.version }}, firmware: {{ node.sysinfo.firmware }}</td>
+            </tr>
+            <tr>
+                <td>Uptime</td>
+                <td>{{ node.sysinfo.uptime }}</td>
+            </tr>
+            <tr>
+                <td>Omnitik</td>
+                <td>{{ node.omnitik }}<span ng-show="node.connectedUsers">, actual connected users: {{ node.connectedUsers }}</span></td>
+            </tr>
+            <tr>
+                <td>Routing</td>
+                <td>Active routes: {{ node.routing.active }}, inactive routes: {{ node.routing.inactive }}, OSPF: {{ node.ospf.state }}, dijkstras: {{ node.ospf.dijkstras }}, routerId: {{ node.ospf.routerId }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-md-4">
+        <div class="thumbnail">
+            <leaflet center="center" markers="nodes" layers="layers"></leaflet>
+            <div class="caption text-center">
+                <h3>{{ node.name }}, lat: {{ node.lat }}, lng: {{ node.lng }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-offset-1 col-md-8">
+        <h3>Neighbors</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Node</th>
+                    <th>P2P link</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="neighbor in neighbors" ng-class="{ success: neighbor.link.nodes[0].ospf.state === 'Full', danger: neighbor.link.nodes[0].ospf.state !== 'Full' }">
+                    <td><a ng-href="#/{{ neighbor.name }}">{{ neighbor.name }}</a><br/>{{ neighbor.ip }}</td>
+                    <td>
+                        <a ng-href="/link/#/{{ neighbor.link.nodes[0].name }}/{{ neighbor.link.nodes[1].name }}">{{ neighbor.link.nodes[0].name }}-{{ neighbor.link.nodes[1].name }}</a> <span class="label label-warning">{{ neighbor.link.distance }}m.</span><br />
+                        <strong>Network:</strong> {{ neighbor.link.network }}<br/>
+                        <strong>OSPF State:</strong> {{ neighbor.link.nodes[0].ospf.state }}<br />
+                        <span ng-show="neighbor.link.nodes[0].ospf.state === 'Full'"><strong>OSPF Adjacency time:</strong> {{ neighbor.link.nodes[0].ospf.adjacency }}, </span>
+                        <span ng-show="neighbor.link.nodes[0].ospf.state === 'Full'"><strong>OSPF state changes:</strong> {{ neighbor.link.nodes[0].ospf.stateChanges }}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-5">
+    </div>
+</div>
+<div class="row graphs" ng-show="node.connectedUsers">
+    <div class="col-md-offset-1 col-md-10">
+        <h2>Connected users to node</h2>
+        <img style="width: 320px;" ng-src="/graph/users/{{ node.name }}" />
+        <img style="width: 320px;" ng-src="/graph/users/{{ node.name }}/?interval=weekly" />
+        <img style="width: 320px;" ng-src="/graph/users/{{ node.name }}/?interval=monthly" />
+        <img style="width: 320px;" ng-src="/graph/users/{{ node.name }}/?interval=year" />
+    </div>
+</div>
+
+<div class="row graphs">
+    <div class="col-md-offset-1 col-md-10">
+        <h2>Ping latency to node</h2>
+        <img style="width: 320px;" ng-src="/graph/ping/{{ node.name }}" />
+        <img style="width: 320px;" ng-src="/graph/ping/{{ node.name }}/?interval=weekly" />
+        <img style="width: 320px;" ng-src="/graph/ping/{{ node.name }}/?interval=monthly" />
+        <img style="width: 320px;" ng-src="/graph/ping/{{ node.name }}/?interval=year" />
+    </div>
+</div>

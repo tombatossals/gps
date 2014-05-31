@@ -1,7 +1,7 @@
 <div class="sidebar" ng-show="active.name">
     <div class="sidebar-header">
         <a style="float: right; color: white; opacity: 1" href="/" ng-click="resetActive()" type="button" class="close">&times;</a>
-        {{ active.name }}
+        {{ active.name }} ({{ active.distance }} meters)
     </div>
     <table class="table">
         <tr ng-show="active.link.n1.ospf">
@@ -13,5 +13,6 @@
             <td><br />{{ active.link.n2.ospf.state }}<br />{{ active.link.n2.ospf.adjacency }}<br />{{ active.link.n2.ospf.stateChanges }}</td>
         </tr>
     </table>
-    <img class="graph" ng-src="/graph/bandwidth/{{ active.link.n1.name }}/{{ active.link.n2.name }}">
+    <button type="button" class="pull-right btn btn-danger" style="margin: 0 1em;">GPS</button>
+    <a href="/link/#/{{ active.link.n1.name }}/{{ active.link.n2.name }}" class="pull-right btn btn-warning" style="margin: 0 1em;">Details</a>
 </div>

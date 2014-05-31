@@ -1,0 +1,5 @@
+{>"layouts/master" /}
+{<body}
+{>header-node/}
+<ng-view></ng-view>
+{/body}

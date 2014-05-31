@@ -62,6 +62,8 @@ action.execute(optional).then(function(results) {
             logger.debug(res.value);
         }
     }
+}).fail(function(err) {
+    console.log(err);
 }).done(function() {
     db.close();
     setTimeout(function() {
