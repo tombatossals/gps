@@ -95,6 +95,11 @@
 
     },
 
+    "collectd": {
+        "snmp": "/etc/collectd.d/snmp.conf",
+        "ping": "/etc/collectd.d/ping.conf"
+    },
+
     "databaseConfig": {
         "host": "localhost",
         "database": "gps"

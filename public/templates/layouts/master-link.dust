@@ -27,7 +27,7 @@
     <script src="/components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.js"></script>
     <script src="/components/leaflet-plugins/layer/tile/Google.js"></script>
     <script src="/components/Leaflet.label/dist/leaflet.label.js"></script>
-    <script src="/components/angular-leaflet-directive/dist/angular-leaflet-directive.min.js"></script>
+    <script src="/components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
     <script src="/components/angular-oauth/src/js/googleOauth.js"></script>
     <script src="/components/angular-oauth/src/js/angularOauth.js"></script>
     <script src="/js/app-link.js"></script>

@@ -10,11 +10,11 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">GPS</a>
+          <a class="navbar-brand" style="font-weight: bold; font-size: 2em;" href="/">GPS</a>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <span style="margin-left: 3em;" class="navbar-brand">Link {{ link.nodes[0].name }}-{{ link.nodes[1].name }}</span>
+          <span ng-cloak style="margin-left: 3em;" class="navbar-brand">Link {{ link.nodes[0].name }}-{{ link.nodes[1].name }}</span>
           <form class="navbar-form navbar-right" role="search">
             <div class="form-search search-only">
               <i class="search-icon glyphicon glyphicon-search"></i>

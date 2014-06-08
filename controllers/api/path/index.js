@@ -49,7 +49,22 @@ module.exports = function (router) {
                     promises.push(getLinkByIPs(ippair));
                 }
                 Q.all(promises).then(function(enlaces) {
-                    res.send(enlaces);
+                    var e = [];
+                    for (var i in enlaces) {
+                        if (enlaces[i]) {
+                            var duplicated = false;
+                            for (var j in e) {
+                                if (enlaces[i]._id.toString() === e[j]._id.toString()) {
+                                    duplicated = true;
+                                    break;
+                                }
+                            }
+                            if (!duplicated) {
+                                e.push(enlaces[i]);
+                            }
+                        }
+                    }
+                    res.send(e);
                 });
             });
         }).fail(function(err) {

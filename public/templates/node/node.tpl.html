@@ -32,7 +32,7 @@
         <div class="thumbnail">
             <leaflet center="center" markers="nodes" layers="layers"></leaflet>
             <div class="caption text-center">
-                <h3>{{ node.name }}, lat: {{ node.lat }}, lng: {{ node.lng }}</p>
+                <h3>{{ node.name }}, lat: {{ node.lat|number:4 }}, lng: {{ node.lng|number:4 }}</p>
             </div>
         </div>
     </div>
@@ -45,17 +45,17 @@
                 <tr>
                     <th>Node</th>
                     <th>P2P link</th>
+                    <th>Distance</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="neighbor in neighbors" ng-class="{ success: neighbor.link.nodes[0].ospf.state === 'Full', danger: neighbor.link.nodes[0].ospf.state !== 'Full' }">
-                    <td><a ng-href="#/{{ neighbor.name }}">{{ neighbor.name }}</a><br/>{{ neighbor.ip }}</td>
+                    <td><a ng-href="#/{{ neighbor.name }}">{{ neighbor.name }}</a></td>
                     <td>
-                        <a ng-href="/link/#/{{ neighbor.link.nodes[0].name }}/{{ neighbor.link.nodes[1].name }}">{{ neighbor.link.nodes[0].name }}-{{ neighbor.link.nodes[1].name }}</a> <span class="label label-warning">{{ neighbor.link.distance }}m.</span><br />
-                        <strong>Network:</strong> {{ neighbor.link.network }}<br/>
-                        <strong>OSPF State:</strong> {{ neighbor.link.nodes[0].ospf.state }}<br />
-                        <span ng-show="neighbor.link.nodes[0].ospf.state === 'Full'"><strong>OSPF Adjacency time:</strong> {{ neighbor.link.nodes[0].ospf.adjacency }}, </span>
-                        <span ng-show="neighbor.link.nodes[0].ospf.state === 'Full'"><strong>OSPF state changes:</strong> {{ neighbor.link.nodes[0].ospf.stateChanges }}</span>
+                        <a ng-href="/link/#/{{ neighbor.link.nodes[0].name }}/{{ neighbor.link.nodes[1].name }}">{{ neighbor.link.nodes[0].name }}-{{ neighbor.link.nodes[1].name }}</a>
+                    </td>
+                    <td>
+                        <span class="label label-warning">{{ neighbor.link.distance }}m.</span>
                     </td>
                 </tr>
             </tbody>

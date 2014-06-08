@@ -3,7 +3,7 @@
         <a style="float: right; color: white; opacity: 1" href="/" ng-click="resetActive();" type="button" class="close">&times;</a>
         {{ active.name }}
     </div>
-    <table class="table" ng-hide="gps">
+    <table class="table">
         <tr>
             <td>IP</td>
             <td ng-bind="active.node.ip"></td>
@@ -25,6 +25,6 @@
             <td ng-bind="active.node.connectedUsers"></td>
         </tr>
     </table>
-    <button type="button" class="pull-right btn btn-danger" style="margin: 0 1em;">GPS</button>
+    <button type="button" class="pull-right btn btn-danger" ng-click="startGPS()" style="margin: 0 1em;">GPS</button>
     <a href="/node/#{{ active.node.name }}" class="pull-right btn btn-warning" style="margin: 0 1em;">Details</a>
 </div>

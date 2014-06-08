@@ -14,11 +14,28 @@
                 <td>Network</td>
                 <td>{{ link.network }}</td>
             </tr>
+            <tr>
+                <td>OSPF State</td>
+                <td>{{ link.nodes[0].name }} - {{ link.nodes[0].ospf.state }}<br />
+                    {{ link.nodes[1].name }} - {{ link.nodes[1].ospf.state }}
+                </td>
+            <tr ng-show="link.nodes[0].ospf.state === 'Full'">
+                <td>OSPF Adjacency time</td>
+                <td>{{ link.nodes[0].name }} - {{ link.nodes[0].ospf.adjacency }}<br />
+                    {{ link.nodes[1].name }} - {{ link.nodes[1].ospf.adjacency }}
+                </td>
+            </td>
+            <tr ng-show="link.nodes[0].ospf.state === 'Full'">
+                <td>OSPF state changes</td>
+                <td>{{ link.nodes[0].name }} - {{ link.nodes[0].ospf.stateChanges }} state changes<br />
+                    {{ link.nodes[1].name }} - {{ link.nodes[1].ospf.stateChanges }} state changes
+                </td>
+            </tr>
         </table>
     </div>
     <div class="col-md-4">
         <div class="thumbnail">
-            <leaflet center="center" markers="nodes" layers="layers"></leaflet>
+            <leaflet center="center" markers="nodes" paths="links" bounds="bounds" layers="layers"></leaflet>
             <div class="caption text-center">
                 <h3>{{ link.nodes[0].name }}-{{link.nodes[1].name }}</p>
             </div>
@@ -28,9 +45,13 @@
 <div class="row graphs">
     <div class="col-md-offset-1 col-md-10">
         <h2>Bandwidth</h2>
-        <img style="width: 320px;" ng-src="/graph/bandwidth/{{ n1 }}/{{ n2 }}" />
-        <img style="width: 320px;" ng-src="/graph/bandwidth/{{ n1 }}/{{ n2 }}/?interval=weekly" />
-        <img style="width: 320px;" ng-src="/graph/bandwidth/{{ n1 }}/{{ n2 }}/?interval=monthly" />
-        <img style="width: 320px;" ng-src="/graph/bandwidth/{{ n1 }}/{{ n2 }}/?interval=year" />
+        <img style="width: 480px;" ng-src="/graph/bandwidth/{{ n1 }}/{{ n2 }}" />
+        <img style="width: 480px;" ng-src="/graph/bandwidth/{{ n1 }}/{{ n2 }}/?interval=weekly" />
+        <img style="width: 480px;" ng-src="/graph/bandwidth/{{ n1 }}/{{ n2 }}/?interval=monthly" />
+        <img style="width: 480px;" ng-src="/graph/bandwidth/{{ n1 }}/{{ n2 }}/?interval=year" />
     </div>
 </div>
+<br />
+<br />
+<br />
+<br />

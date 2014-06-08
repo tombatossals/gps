@@ -28,7 +28,196 @@ app.controller('HeaderController', [ '$rootScope', '$scope', '$location', '$http
     });
 }]);
 
-app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$routeParams', '$aside', '$modal', '$alert', '$q', 'leafletData', 'leafletBoundsHelpers', function($scope, $http, $timeout, $location, $routeParams, $aside, $modal, $alert, $q, leafletData, leafletBoundsHelpers) {
+app.controller('MainController', [ '$scope', '$rootScope', function($scope, $rootScope) {
+console.log("hola");
+    $rootScope.gps = false;
+    $scope.showingGPS = false;
+    if ($scope.gpsAlert) {
+        $scope.gpsAlert.hide();
+    }
+
+    for (var i in $scope.links) {
+        var link = $scope.links[i];
+        link.color = link.activeColor;
+    }
+}]);
+
+app.controller('NodeController', [ '$scope', '$routeParams', function($scope, $routeParams) {
+    $scope.gps = false;
+    $scope.showingGPS = false;
+    if ($scope.gpsAlert) {
+        $scope.gpsAlert.hide();
+    }
+
+    $scope.nodesPromise.promise.then(function(nodes) {
+        $scope.active = nodes[$routeParams.node];
+        $scope.center = {
+            lat: $scope.active.lat,
+            lng: $scope.active.lng,
+            zoom: 16
+        };
+    });
+
+    $scope.resetActive = function() {
+        $scope.gps = false;
+        $scope.showingGPS = false;
+        if ($scope.gpsAlert) {
+            $scope.gpsAlert.hide();
+        }
+
+        for (var i in $scope.links) {
+            var link = $scope.links[i];
+            link.color = link.activeColor;
+        }
+    };
+
+}]);
+
+app.controller('LinkController', [ '$scope', '$routeParams', 'leafletBoundsHelpers', 'leafletData', function($scope, $routeParams, leafletBoundsHelpers, leafletData) {
+    $scope.linksPromise.promise.then(function(links) {
+        var n1 = $routeParams.n1;
+        var n2 = $routeParams.n2;
+
+        $scope.active = links[n1 + "_" + n2];
+        if (!$scope.active) {
+            $scope.active = links[n2 + "_" + n1];
+        }
+
+        $scope.active.color = "#FFF";
+        var n1 = $scope.nodes[$scope.active.nodes[0]];
+        var n2 = $scope.nodes[$scope.active.nodes[1]];
+        leafletData.getMap().then(function(map) {
+            map.fitBounds([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
+        });
+    });
+
+    $scope.resetActive = function() {
+        $scope.gps = false;
+        $scope.showingGPS = false;
+        if ($scope.gpsAlert) {
+            $scope.gpsAlert.hide();
+        }
+
+        for (var i in $scope.links) {
+            var link = $scope.links[i];
+            link.color = link.activeColor;
+        }
+    };
+
+}]);
+
+app.controller('PathController', [ '$scope', '$routeParams', '$alert', '$http', 'leafletData', function($scope, $routeParams, $alert, $http, leafletData) {
+    var n1 = $routeParams.p1;
+    var n2 = $routeParams.p2;
+
+    $scope.active = [];
+    if ($scope.gpsAlert) {
+        $scope.gpsAlert.hide();
+    }
+
+    var saturationColor = {
+        0: "#491",
+        1: "#FFFF00",
+        2: "#FF8800",
+        3: "#FF0000"
+    };
+
+    $scope.resetActive = function() {
+        $scope.gps = false;
+        if ($scope.gpsAlert) {
+            $scope.gpsAlert.hide();
+        }
+
+        for (var i in $scope.links) {
+            var link = $scope.links[i];
+            link.color = link.activeColor;
+        }
+    };
+
+    $scope.gpsAlert = $alert({title: '', content: '<img style="margin-right: 1em;" src="/images/loading-spin.svg" /> <strong>Wait.</strong> Getting the route...', placement: 'top-right', type: 'warning', show: true});
+
+    var colorizeLink = function(activeLink) {
+        angular.forEach($scope.links, function(link) {
+            if (link === activeLink) {
+                colorizeNodeIcon();
+                link.color = "#FFF";
+            } else {
+                link.color = saturationColor[link.saturation];
+            }
+        });
+    };
+
+    var colorizeNodeIcon = function(activeNode) {
+        angular.forEach($scope.nodes, function(node) {
+            if (node === activeNode) {
+                colorizeLink();
+                node.icon.markerColor = "red";
+            } else {
+                node.icon.markerColor = "blue";
+            }
+        });
+    };
+
+    var getNodesInPath = function(path) {
+        var nodes = [];
+        for (var i in path) {
+            var link = path[i];
+            if (!link) continue;
+            if (nodes.indexOf(link.nodes[0].name) === -1) {
+                nodes.push(link.nodes[0].name);
+            }
+            if (nodes.indexOf(link.nodes[1].name) === -1) {
+                nodes.push(link.nodes[1].name);
+            }
+        }
+        return nodes;
+    };
+
+    colorizeLink();
+    $http.get("/api/path/" + n1 + '/' + n2).success(function(path) {
+        leafletData.getMap().then(function(map) {
+            var nodes = getNodesInPath(path);
+            var points = [];
+            for (var i in nodes) {
+                var node = nodes[i];
+                points.push([$scope.nodes[node].lat, $scope.nodes[node].lng ]);
+            }
+            map.fitBounds(points);
+        });
+
+        $scope.gpsAlert.hide();
+        for (var i in $scope.links) {
+            var link = $scope.links[i];
+            for (var j in path) {
+                var l = path[j];
+                if (!l) continue;
+                if (l._id === link.id) {
+                    link.color = "#FFF";
+                }
+            }
+        }
+        $scope.active = path;
+        $scope.gps = false;
+    }).error(function(data, status, headers, config) {
+        $scope.gps = false;
+    });
+
+    $scope.resetActive = function() {
+        $scope.gps = false;
+        $scope.showingGPS = false;
+        if ($scope.gpsAlert) {
+            $scope.gpsAlert.hide();
+        }
+
+        for (var i in $scope.links) {
+            var link = $scope.links[i];
+            link.color = link.activeColor;
+        }
+    };
+
+}]);
+
+app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$routeParams', '$aside', '$modal', '$alert', '$q', 'leafletBoundsHelpers', function($scope, $http, $timeout, $location, $routeParams, $aside, $modal, $alert, $q, leafletBoundsHelpers) {
 
     angular.extend($scope, {
         center: {
@@ -37,6 +226,8 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
             zoom: 12
         },
         nodes: {},
+        linksPromise: $q.defer(),
+        nodesPromise: $q.defer(),
         bounds: [],
         links: {},
         gps: false,
@@ -77,12 +268,8 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
         return { lat: $scope.nodes[nodeName].lat, lng: $scope.nodes[nodeName].lng };
     };
 
-    $scope.resetActive = function() {
-        $scope.active.color = $scope.active.activeColor;
-        $scope.active = undefined;
-    }
-
     $scope.$on('leafletDirectivePath.mouseout', function(event, link) {
+        if ($location.path().indexOf("/path") === 0) return;
         var link = $scope.links[link.pathName];
         if (!$scope.active || $scope.active.name !== link.name) {
             link.color = link.activeColor;
@@ -90,6 +277,7 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
     });
 
     $scope.$on('leafletDirectivePath.mouseover', function(event, link) {
+        if ($location.path().indexOf("/path") === 0) return;
         var link = $scope.links[link.pathName];
         link.color = "#FFF";
     });
@@ -114,9 +302,10 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
         }
 
         if ($scope.gps) {
-            clickGPS($scope.aside.data.name, node.markerName);
+            clickGPS($scope.active.name, node.markerName);
             return;
         }
+
         $scope.active = $scope.nodes[node.markerName];
         $scope.center = {
             lat: $scope.active.lat,
@@ -127,117 +316,14 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
     });
 
     var clickGPS = function(n1, n2) {
-        gpsAlert.hide();
         $location.url('/path/' + n1 + '/' + n2);
     };
 
-    var getNodesInPath = function(path) {
-        var nodes = [];
-        for (var i in path) {
-            var link = path[i];
-            if (nodes.indexOf(link.nodes[0].name) === -1) {
-                nodes.push(link.nodes[0].name);
-            }
-            if (nodes.indexOf(link.nodes[1].name) === -1) {
-                nodes.push(link.nodes[1].name);
-            }
-        }
-        return nodes;
-    };
-
-    var initGPS = function() {
-        var path = $location.path(),
-            pattern = /path\/(\w+)\/?(\w+)?/,
-            match = path.match(pattern),
-            n1 = match[1],
-            n2 = match[2];
-
-        gpsAlert = $alert({title: '', content: '<img style="margin-right: 1em;" src="/images/loading-spin.svg" /> <strong>Wait.</strong> Getting the route...', placement: 'top-right', type: 'warning', show: true});
-        colorizeLink();
-        $http.get("/api/path/" + n1 + '/' + n2).success(function(path) {
-            leafletData.getMap().then(function(map) {
-                var nodes = getNodesInPath(path);
-                var points = [];
-                for (var i in nodes) {
-                    var node = nodes[i];
-                    points.push([$scope.nodes[node].lat, $scope.nodes[node].lng ]);
-                }
-                map.fitBounds(points);
-            });
-
-            gpsAlert.hide();
-            if ($scope.aside.aside) {
-                $scope.aside.aside.hide();
-            }
-            $scope.aside.visible = false;
-            for (var i in $scope.links) {
-                var link = $scope.links[i];
-                for (var j in path) {
-                    var l = path[j];
-                    if (l._id === link.id) {
-                        link.color = "#FFF";
-                    }
-                }
-            }
-            $scope.gps = false;
-            gpsAlert = $alert({title: path.length + ' hops', content: "links:" + path[0].name, placement: 'top-right', type: 'warning', show: true});
-        }).error(function(data, status, headers, config) {
-            $scope.gps = false;
-        });
-    };
-
     var current = {};
-    var gpsAlert;
+    $scope.gpsAlert;
     $scope.startGPS = function() {
-        gpsAlert = $alert({title: 'Choose the desired destination.', content: 'Click on the node where you want to go from ' + $scope.aside.data.name + '.', placement: 'top-right', type: 'success', show: true});
+        $scope.gpsAlert = $alert({title: 'Choose the desired destination.', content: 'Click on the node where you want to go from ' + $scope.active.name + '.', placement: 'top-right', type: 'success', show: true});
         $scope.gps = true;
-    };
-
-    var colorizeLink = function(activeLink) {
-        angular.forEach($scope.links, function(link) {
-            if (link === activeLink) {
-                colorizeNodeIcon();
-                link.color = "#FFF";
-            } else {
-                link.color = saturationColor[link.saturation];
-            }
-        });
-    };
-
-    var colorizeNodeIcon = function(activeNode) {
-        angular.forEach($scope.nodes, function(node) {
-            if (node === activeNode) {
-                colorizeLink();
-                node.icon.markerColor = "red";
-            } else {
-                node.icon.markerColor = "blue";
-            }
-        });
-    };
-
-    var setActiveElement = function() {
-        if ($routeParams.node) {
-            $scope.active = $scope.nodes[$routeParams.node];
-            $scope.center = {
-                lat: $scope.active.lat,
-                lng: $scope.active.lng,
-                zoom: 16
-            };
-        }
-
-        if ($routeParams.n1 && $routeParams.n2) {
-            var n1 = $routeParams.n1;
-            var n2 = $routeParams.n2;
-            $scope.active = $scope.links[n1 + "_" + n2];
-            if (!$scope.active) {
-                $scope.active = $scope.links[n2 + "_" + n1];
-            }
-            $scope.active.color = "#FFF";
-
-            var n1 = $scope.nodes[$scope.active.nodes[0]];
-            var n2 = $scope.nodes[$scope.active.nodes[1]];
-            $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
-        }
     };
 
     $http.get("/api/node/").success(function(nodes) {
@@ -266,6 +352,7 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
 
             $scope.nodes[node.name] = marker;
         }
+        $scope.nodesPromise.resolve($scope.nodes);
 
         $http.get("/api/link/").success(function(links) {
             angular.forEach(links, function(link) {
@@ -297,11 +384,7 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
                     link: { n1: n1, n2: n2}
                 };
             });
-
-            setActiveElement();
-            $scope.$on('$locationChangeSuccess', function(event) {
-                $timeout(setActiveElement, 300);
-            });
+            $scope.linksPromise.resolve($scope.links);
         });
     });
 }]);

@@ -9,10 +9,17 @@ angular.module('gps', [
   'mgcrea.ngStrap'
 ]).
 config(function ($routeProvider, $locationProvider) {
-    $routeProvider.when('/node/:node', {
-        templateUrl: 'templates/sidebar/node.tpl.html'
+    $routeProvider.when('/', {
+        controller: 'MainController'
+    }).when('/node/:node', {
+        templateUrl: 'templates/sidebar/node.tpl.html',
+        controller: 'NodeController'
     }).when('/link/:n1/:n2', {
-        templateUrl: 'templates/sidebar/link.tpl.html'
+        templateUrl: 'templates/sidebar/link.tpl.html',
+        controller: 'LinkController'
+    }).when('/path/:p1/:p2', {
+        templateUrl: 'templates/sidebar/path.tpl.html',
+        controller: 'PathController'
     });
     $locationProvider.html5Mode(false);
 }).

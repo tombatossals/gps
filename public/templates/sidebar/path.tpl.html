@@ -1,0 +1,12 @@
+<div class="sidebar">
+    <div class="sidebar-header" style="overflow: hidden;">
+        <a style="float: right; color: white; opacity: 1" href="/" ng-click="resetActive()" type="button" class="close">&times;</a>
+        Path
+    </div>
+    <table class="table">
+        <tr ng-repeat="l in active">
+            <td ng-bind="$index + 1"></td>
+            <td ng-bind="l.nodes[0].name + '-' + l.nodes[1].name"></td>
+        </tr>
+    </table>
+</div>
