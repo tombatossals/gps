@@ -14,7 +14,10 @@ module.exports = function (router) {
     });
 
     router.get('/google/callback',
-        passport.authenticate('google', { successRedirect: '/auth/google/success', failureRedirect: '/auth/google/failure' }));
+        passport.authenticate('google', { successRedirect: '/auth/google/success', failureRedirect: '/auth/google/failure' }),
+        function(req, res) {
+            res.redirect('/');
+        });
 
     router.get('/google/logout', function(req, res){
         req.logout();

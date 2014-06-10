@@ -175,8 +175,8 @@ module.exports = function (router) {
                     a = rrdFiles.a,
                     b = rrdFiles.b;
 
-                a = a.replace(":3.rrd", ".rrd");
-                b = b.replace(":3.rrd", ".rrd");
+                a = a.replace(':3.rrd', '.rrd');
+                b = b.replace(':3.rrd', '.rrd');
                 if (!fs.existsSync(a) || !fs.existsSync(b)) {
                     res.send(404);
                     return;

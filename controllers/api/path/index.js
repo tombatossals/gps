@@ -31,6 +31,27 @@ module.exports = function (router) {
                 traceroute = openwrtTraceroute;
             }
 
+            var duplicated = function(links, link) {
+                var duplicated = false;
+                for (var i in links) {
+                    if (link._id.toString() === links[i]._id.toString()) {
+                        duplicated = true;
+                        break;
+                    }
+                }
+                return duplicated;
+            };
+
+            var getNotDuplicatedLinks = function(links) {
+                var e = [];
+                for (var i in links) {
+                    if (links[i] && !duplicated(e, links[i])) {
+                        e.push(links[i]);
+                    }
+                }
+                return e;
+            };
+
             traceroute(n1.mainip, n1.username, n1.password, n2.mainip).then(function(path) {
                 if (path.length === 0) {
                     res.send(404);
@@ -42,28 +63,13 @@ module.exports = function (router) {
                 for (i = 0; i < path.length-1; i++) {
                     eips.push([path[i], path[i + 1]]);
                 }
-                var enlaces = [];
                 var promises = [];
                 for (i in eips) {
                     var ippair = eips[i];
                     promises.push(getLinkByIPs(ippair));
                 }
-                Q.all(promises).then(function(enlaces) {
-                    var e = [];
-                    for (var i in enlaces) {
-                        if (enlaces[i]) {
-                            var duplicated = false;
-                            for (var j in e) {
-                                if (enlaces[i]._id.toString() === e[j]._id.toString()) {
-                                    duplicated = true;
-                                    break;
-                                }
-                            }
-                            if (!duplicated) {
-                                e.push(enlaces[i]);
-                            }
-                        }
-                    }
+                Q.all(promises).then(function(links) {
+                    var e = getNotDuplicatedLinks(links);
                     res.send(e);
                 });
             });
