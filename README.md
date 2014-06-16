@@ -19,7 +19,7 @@ Instalación en Archlinxu
 $ sudo pacman -S collectd mongodb nodejs git
 ```
 
-## Clonado del respositorio
+## Instalación del proyecto GPS
 
 Con una cuenta de usuario no privilegiado, clonaremos el repositorio git del proyecto e instalaremos las dependencias de NodeJS (npm) y de javascript cliente (bower).
 
