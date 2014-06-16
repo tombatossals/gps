@@ -10,17 +10,18 @@
     },
     "dependencies": {
         "kraken-js": "latest",
-        "kraken-devtools": "beta",
-        "engine-munger": "^0.1.3",
-        "express": "^4.1.0",
-        "confit": "latest"
+        "kraken-devtools": "latest",
+        "engine-munger": "latest",
+        "express": "latest",
+        "confit": "latest",
+        "net-ping": "latest"
     },
     "devDependencies": {
-        "mocha": "^1.18.0",
-        "supertest": "^0.9.0"
+        "mocha": "latest",
+        "supertest": "latest"
     },
     "generator-kraken": {
-        "version": "1.0.0-rc.3",
+        "version": "latest",
         "template": "dustjs",
         "css": "less",
         "js": false,

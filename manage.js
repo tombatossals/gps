@@ -5,7 +5,7 @@ var util = require("util"),
     confit = require('confit'),
     yargs = require("yargs"),
     path = require('path'),
-    howtouse = "Usage: $0 <-l level> [ping [nodes]|generate [collectd_snmp|collectd_ping|collectd_routeros]|monitor [links|users|path]|update [interfaces|links|bandwidth|routing|sysinfo|ospf]|add [node|link] <file.json>]";
+    howtouse = "Usage: $0 <-l level> [ping [nodes]|discover [links]|generate [collectd_snmp|collectd_ping|collectd_routeros]|monitor [links|users|path]|update [interfaces|links|bandwidth|routing|sysinfo|ospf]|add [node|link] <file.json>]";
 
 var options = {
     basedir: path.join(__dirname, 'config')
