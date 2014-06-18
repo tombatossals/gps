@@ -25,6 +25,9 @@
         "ssh2": "latest",
         "less": "latest",
         "localizr": "latest",
+        "async": "latest",
+        "yargs": "latest",
+        "bunyan": "latest",
         "passport-google-oauth": "latest",
         "net-ping": "latest"
     },

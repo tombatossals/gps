@@ -14,7 +14,7 @@ module.exports = function (router) {
                 getLinks().then(function(links) {
                     res.json(links);
                 }).fail(function(err) {
-                    res.send(err);
+                    res.send(500, { error: err });
                 });
             }
         });
