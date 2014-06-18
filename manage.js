@@ -19,6 +19,7 @@ var check_parameters = function(argv) {
     var sections = {
         generate: [ "collectd_snmp", "collectd_ping", "collectd_routeros" ],
         monitor: [ "links", "users", "path" ],
+        discover: [ "links" ],
         update: [ "interfaces", "links", "bandwidth", "routing", "sysinfo", "ospf" ],
         add: [ "node", "link" ],
         ping: [ "nodes" ]

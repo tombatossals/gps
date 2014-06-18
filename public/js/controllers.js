@@ -29,7 +29,6 @@ app.controller('HeaderController', [ '$rootScope', '$scope', '$location', '$http
 }]);
 
 app.controller('MainController', [ '$scope', '$rootScope', function($scope, $rootScope) {
-console.log("hola");
     $rootScope.gps = false;
     $scope.showingGPS = false;
     if ($scope.gpsAlert) {
@@ -336,7 +335,7 @@ app.controller('MapController', [ '$scope', '$http', '$timeout', '$location', '$
                 icon: {
                     type: 'awesomeMarker',
                     icon: 'star',
-                    markerColor: 'blue',
+                    markerColor: node.alive ? 'blue':'red',
                     labelAnchor: [10, -24]
                 },
                 label: {

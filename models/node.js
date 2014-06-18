@@ -38,6 +38,9 @@ var nodeModel = function() {
         omnitik: {
             type: Boolean
         },
+        alive: {
+            type: Boolean
+        },
         validated: {
             type: Boolean
         },
