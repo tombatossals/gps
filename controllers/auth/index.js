@@ -21,6 +21,7 @@ module.exports = function (router) {
 
     router.get('/google/logout', function(req, res){
         req.logout();
+        req.session.destroy();
         res.writeHead(200);
         res.end();
     });
