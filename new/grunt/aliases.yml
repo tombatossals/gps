@@ -1,0 +1,13 @@
+test:
+ - 'jshint'
+ - 'mochacli'
+
+build:
+ - 'jshint'
+ - 'less'
+ - 'html2js'
+ - 'ngAnnotate'
+ - 'uglify'
+
+default:
+  - 'build'

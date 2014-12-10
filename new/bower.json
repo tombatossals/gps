@@ -1,0 +1,17 @@
+{
+  "name": "gps",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular": "latest",
+    "angular-leaflet-directive": "https://github.com/tombatossals/angular-leaflet-directive.git#master",
+    "Leaflet.label": "latest",
+    "leaflet-plugins": "latest",
+    "Leaflet.awesome-markers": "latest",
+    "angular-route": "latest"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ]
+}
