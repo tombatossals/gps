@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>GPS - Troncal de La Plana Alta</title>
-    <link rel="stylesheet" href="/components/leaflet-dist/leaflet.css">
+    <link rel="stylesheet" href="/components/leaflet/dist/leaflet.css">
     <link rel="stylesheet" href="/components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css">
     <link rel="stylesheet" href="/components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/components/Leaflet.label/dist/leaflet.label.css">
@@ -23,7 +23,7 @@
     <script src="/components/angular-strap/dist/angular-strap.tpl.min.js"></script>
     <script src="/components/angular-strap/dist/modules/tooltip.min.js"></script>
     <script src="/components/angular-strap/dist/modules/parse-options.min.js"></script>
-    <script src="/components/leaflet-dist/leaflet.js"></script>
+    <script src="/components/leaflet/dist/leaflet.js"></script>
     <script src="/components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.js"></script>
     <script src="/components/leaflet-plugins/layer/tile/Google.js"></script>
     <script src="/components/Leaflet.label/dist/leaflet.label.js"></script>
