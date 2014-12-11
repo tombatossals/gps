@@ -1,15 +1,13 @@
 'use strict';
 
-var mongoose  = require('mongoose'),
-    Link    = require('../models/link'),
-    Node = require('../models/node'),
-    getNodesByName = require('./common').getNodesByName,
-    getLinks = require('./common').getLinks,
-    exec      = require('child_process').exec,
-    fs = require('fs'),
-    util      = require('util'),
-//    sendpush = require('./pushover').sendpush,
-    Q = require('q');
+var nodeModel = require('../../app/models/node');
+var linkModel = require('../../app/models/link');
+var mikrotik  = require('../../app/models/mikrotik');
+var openwrt   = require('../../app/models/openwrt');
+var exec      = require('child_process').exec;
+var fs        = require('fs');
+var util      = require('util');
+var Q         = require('q');
 
 function get_data_from_command_line(link) {
     var deferred = Q.defer();
@@ -112,7 +110,7 @@ function execute(nodes) {
     var deferred = Q.defer();
 
     if (nodes && nodes.length > 0) {
-        getNodesByName(nodes).then(function(nodes) {
+        nodeModel.getNodesByName(nodes).then(function(nodes) {
             var nodesIds = [];
             for (var i in nodes) {
                 var node = nodes[i];
@@ -120,7 +118,7 @@ function execute(nodes) {
             }
 
             query =  { 'active': true, 'nodes.id': { '$all': nodesIds } };
-            getLinks(query).then(function(links) {
+            linkModel.getLinks(query).then(function(links) {
                 var promises = [];
                 links.forEach(function(link) {
                     promises.push(updateBandwidthLink(link));
@@ -134,7 +132,7 @@ function execute(nodes) {
         });
     } else {
         var query = { active: true };
-        getLinks(query).then(function(links) {
+        limkModel.getLinks(query).then(function(links) {
             var promises = [];
             links.forEach(function(link) {
                 promises.push(updateBandwidthLink(link));

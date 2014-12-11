@@ -1,6 +1,8 @@
 'use strict';
 
-var node = require('../../app/models/node');
+var nodeModel = require('../../app/models/node');
+var network = require('../../app/models/network');
+var geolib = require('geolib');
 var mongoose = require('mongoose');
 var Q = require('q');
 var util = require('util');
@@ -118,9 +120,9 @@ var getLinkByIPs = function(ippair) {
         return;
     }
 
-    getNodeByIP(ippair[0]).then(function(node) {
+    nodeModel.getNodeByIP(ippair[0]).then(function(node) {
         var node1 = node;
-        getNodeByIP(ippair[1]).then(function(node) {
+        nodeModel.getNodeByIP(ippair[1]).then(function(node) {
             var node2 = node;
             getLinkByNodes([node1, node2]).then(function(link) {
                 deferred.resolve(link);
@@ -208,17 +210,46 @@ var addLink = function(nodes) {
     return deferred.promise;
 };
 
+var update = function(link, n1, n2, ifaces) {
+    var deferred = Q.defer();
+
+    if (link.nodes[0].id === n1._id.toString()) {
+        link.nodes[0].iface = ifaces.n1.name;
+        link.nodes[0].name  = n1.name;
+        link.nodes[1].iface = ifaces.n2.name;
+        link.nodes[1].name  = n2.name;
+    } else {
+        link.nodes[1].iface = ifaces.n1.name;
+        link.nodes[1].name  = n1.name;
+        link.nodes[0].iface = ifaces.n2.name;
+        link.nodes[0].name  = n2.name;
+    }
+    link.network = ifaces.network.base + '/' + ifaces.network.bitmask;
+    link.active = true;
+    link.distance = geolib.getDistance({
+        latitude: n1.latlng.lat,
+        longitude: n1.latlng.lng
+    }, {
+        latitude: n2.latlng.lat,
+        longitude: n2.latlng.lng
+    });
+    link.save(function() {
+        deferred.resolve(util.format('Supernode link updated: %s-%s', n1.name, n2.name));
+        return;
+    });
+
+    return deferred.promise;
+};
+
 var updateLink = function(link) {
     var deferred = Q.defer();
 
     var n1 = link.nodes[0].name;
     var n2 = link.nodes[1].name;
 
-    nodeModel.getNodesByName([ n1, n2 ]).then(function(err, nodes) {
+    nodeModel.getNodesByName([ n1, n2 ]).then(function(nodes) {
         var n1 = nodes[0];
         var n2 = nodes[1];
-
-        console.log(err);
 
         if (!n1 || !n2) {
             link.remove(function() {
@@ -233,7 +264,8 @@ var updateLink = function(link) {
         }
 
         var found = false;
-        var ifaces = getInterfacesSameNetwork(n1, n2);
+
+        var ifaces = network.getInterfacesSameNetwork(n1, n2);
 
         if (ifaces.network) {
             update(link, n1, n2, ifaces).then(function() {

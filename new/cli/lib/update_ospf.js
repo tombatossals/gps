@@ -1,21 +1,34 @@
 'use strict';
 
-var mongoose  = require('mongoose'),
-    Link    = require('../models/link'),
-    Node = require('../models/node'),
-    getNodesByName = require('./common').getNodesByName,
-    getLinks = require('./common').getLinks,
-    getNeighborInfoMikrotik = require('./mikrotik').getNeighborInfo,
-    getNeighborInfoOpenWRT = require('./openwrt').getNeighborInfo,
-    getOSPFInstanceInfoMikrotik = require('./mikrotik').getOSPFInstanceInfo,
-    getOSPFInstanceInfoOpenWRT = require('./openwrt').getOSPFInstanceInfo,
-    getLinkByIPs = require('./common').getLinkByIPs,
-    resetOSPFState = require('./common').resetOSPFState,
-    exec      = require('child_process').exec,
-    fs = require('fs'),
-    util      = require('util'),
-//    sendpush = require('./pushover').sendpush,
-    Q = require('q');
+var nodeModel = require('../../app/models/node');
+var linkModel = require('../../app/models/link');
+var mikrotik  = require('../../app/models/mikrotik');
+var openwrt   = require('../../app/models/openwrt');
+var exec      = require('child_process').exec;
+var fs        = require('fs');
+var util      = require('util');
+var Q         = require('q');
+
+var getLinkInformation = function(neighbor, node) {
+    var df = Q.defer();
+
+    linkModel.getLinkByIPs([node.mainip, neighbor.address]).then(function(link) {
+        var nodes = link.nodes;
+        var pos = link.nodes[0].name === node.name ? 0:1;
+        nodes[pos].ospf = {
+            adjacency: neighbor.adjacency,
+            state: neighbor.state,
+            stateChanges: neighbor['state-changes']
+        };
+        link.nodes = nodes;
+        link.save(function() {
+            df.resolve();
+        });
+    }).fail(function(err) {
+        df.reject(err);
+    });
+    return df.promise;
+};
 
 var getOSPFInfo = function getOSPFInfo(node) {
     var deferred = Q.defer(),
@@ -23,41 +36,20 @@ var getOSPFInfo = function getOSPFInfo(node) {
         getOSPFInstanceInfo;
 
     if (node.system === 'mikrotik') {
-        getNeighborInfo = getNeighborInfoMikrotik;
-        getOSPFInstanceInfo = getOSPFInstanceInfoMikrotik;
+        getNeighborInfo = mikrotik.getNeighborInfo;
+        getOSPFInstanceInfo = mikrotik.getOSPFInstanceInfo;
     } else {
-        getNeighborInfo = getNeighborInfoOpenWRT;
-        getOSPFInstanceInfo = getOSPFInstanceInfoOpenWRT;
+        getNeighborInfo = openwrt.getNeighborInfo;
+        getOSPFInstanceInfo = openwrt.getOSPFInstanceInfo;
     }
-
-    var getLinkInformation = function(neighbor) {
-        var df = Q.defer();
-
-        getLinkByIPs([node.mainip, neighbor.address]).then(function(link) {
-            var nodes = link.nodes;
-            var pos = link.nodes[0].name === node.name ? 0:1;
-            nodes[pos].ospf = {
-                adjacency: neighbor.adjacency,
-                state: neighbor.state,
-                stateChanges: neighbor['state-changes']
-            };
-            link.nodes = nodes;
-            link.save(function() {
-                df.resolve();
-            });
-        }).fail(function(err) {
-            df.reject(err);
-        });
-        return df.promise;
-    };
 
     getNeighborInfo(node.mainip, node.username, node.password).then(function(neighbors) {
         var promises = [];
         var first = neighbors.shift();
 
         neighbors.reduce(function(prev, neighbor) {
-            return prev.then(getLinkInformation(neighbor));
-        }, getLinkInformation(first));
+            return prev.then(getLinkInformation(neighbor, node));
+        }, getLinkInformation(first, node));
 
         Q.all(promises).then(function() {
             getOSPFInstanceInfo(node.mainip, node.username, node.password).then(function(instance) {
@@ -66,14 +58,10 @@ var getOSPFInfo = function getOSPFInfo(node) {
                     dijkstras: instance.dijkstras,
                     state: instance.state
                 };
-                node.save(function() {
+                node.save(function(err) {
                     deferred.resolve('Successfully saved node ospf information on ' + node.name);
                 });
-            }).fail(function(err) {
-                deferred.reject(err);
             });
-        }).fail(function(err) {
-            deferred.reject(err);
         });
     }).fail(function(err) {
         deferred.reject(err);
@@ -85,7 +73,7 @@ var getOSPFInfo = function getOSPFInfo(node) {
 var execute = function execute(nodes) {
     var deferred = Q.defer();
 
-    getNodesByName(nodes).then(function(nodes) {
+    nodeModel.getNodesByName(nodes).then(function(nodes) {
         if (nodes.length === 0) {
             deferred.reject('No nodes found.');
             return;
@@ -95,8 +83,8 @@ var execute = function execute(nodes) {
             results = [];
 
         var promises = nodes.reduce(function(prev, node)  {
+            console.log(node.name);
             return prev.then(function(partialResult) {
-console.log(node.name);
                 results.push({
                     state: 'fulfilled',
                     value: partialResult
@@ -105,6 +93,9 @@ console.log(node.name);
             });
         }, getOSPFInfo(first));
 
+        promises.then(function(result) {
+            deferred.resolve(result);
+        });
     });
 
     return deferred.promise.timeout(300000);

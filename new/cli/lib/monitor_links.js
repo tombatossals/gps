@@ -1,44 +1,42 @@
 'use strict';
 
-var Netmask   = require('netmask').Netmask,
-    util      = require('util'),
-    getNodesByName = require('./common').getNodesByName,
-    getNodesById = require('./common').getNodesById,
-    getLinksById = require('./common').getLinksById,
-    getLinks = require('./common').getLinks,
-    bandwidthTestMikrotik = require('./mikrotik').bandwidthTest,
-    bandwidthTestOpenwrt = require('./openwrt').bandwidthTest,
-    sshConn   = require('ssh2'),
-    Q         = require('q'),
-    badLinks = [];
+var nodeModel = require('../../app/models/node');
+var linkModel = require('../../app/models/link')
+var Q = require('q');
+var Netmask = require('netmask').Netmask;
+var util      = require('util');
+var sshConn   = require('ssh2');
+var mikrotik  = require('../../app/models/mikrotik');
+var openwrt   = require('../../app/models/openwrt');
+var badLinks = [];
 
 var bandwidthTest = function(linkId) {
     var deferred = Q.defer();
 
-    getLinksById([linkId]).then(function(links) {
+    linkModel.getLinksById([linkId]).then(function(links) {
         var link = links[0];
         var n1 = link.nodes[0].name;
         var n2 = link.nodes[1].name;
-        getNodesByName([ n1, n2 ]).then(function(nodes) {
+        nodeModel.getNodesByName([ n1, n2 ]).then(function(nodes) {
             var n1 = nodes[0];
             var n2 = nodes[1];
 
             if (n1.system === 'openwrt') {
-                bandwidthTestOpenwrt(link, n1, n2).then(function(result) {
+                openwrt.bandwidthTest(link, n1, n2).then(function(result) {
                     deferred.resolve(result);
                 }).fail(function(result) {
                     badLinks.push(link);
                     deferred.reject(result);
                 });
             } else if (n2.system === 'openwrt') {
-                bandwidthTestOpenwrt(link, n2, n1).then(function(result) {
+                openwrt.bandwidthTest(link, n2, n1).then(function(result) {
                     deferred.resolve(result);
                 }).fail(function(result) {
                     badLinks.push(link);
                     deferred.reject(result);
                 });
             } else {
-                bandwidthTestMikrotik(link, n1, n2).then(function(result) {
+                mikrotik.bandwidthTest(link, n1, n2).then(function(result) {
                     deferred.resolve(result);
                 }).fail(function(result) {
                     badLinks.push(link);
@@ -114,7 +112,7 @@ var execute = function(nodes) {
     var deferred = Q.defer();
 
     if (nodes && nodes.length > 0) {
-        getNodesByName(nodes).then(function(nodes) {
+        nodeModel.getNodesByName(nodes).then(function(nodes) {
             var nodesIds = [];
             for (var i in nodes) {
                 var node = nodes[i];
@@ -122,7 +120,7 @@ var execute = function(nodes) {
             }
 
             var query =  { active: true, 'nodes.id': { '$all': nodesIds } };
-            getLinks(query).then(function(links) {
+            linkModel.getLinks(query).then(function(links) {
                 startMonitoring(links).then(function(result) {
                     startMonitoring(badLinks).then(function(result2) {
                         deferred.resolve(result.concat(result2));
@@ -137,7 +135,7 @@ var execute = function(nodes) {
         });
     } else {
         var query = { active: true };
-        getLinks(query).then(function(links) {
+        linkModel.getLinks(query).then(function(links) {
             startMonitoring(links).then(function(result) {
                 startMonitoring(badLinks).then(function(result2) {
                     deferred.resolve(result.concat(result2));

@@ -16,6 +16,38 @@ var isNetworkRegistered = function(address, links) {
     return false;
 };
 
+var getInterfaceInNetwork = function(node, network) {
+    for (var i in node.interfaces) {
+        var iface = node.interfaces[i];
+        if (iface && iface.address && (iface.address.search('172.16') === 0 || iface.address.search('10.') === 0)) {
+            var address = iface.address.split('/')[0];
+            if (network.contains(address)) {
+                return iface;
+            }
+        }
+    }
+};
+
+var getInterfacesSameNetwork = function(n1, n2) {
+    var ifaces = {};
+
+    for (var i in n1.interfaces) {
+        var iface = n1.interfaces[i];
+        if (iface && iface.address && (iface.address.search('172.16') === 0 || iface.address.search('10.') === 0)) {
+            var network = new Netmask(iface.address);
+            var iface2 = getInterfaceInNetwork(n2, network);
+
+            if (iface2) {
+                ifaces.network = network;
+                ifaces.n1 = iface;
+                ifaces.n2 = iface2;
+            }
+        }
+    }
+
+    return ifaces;
+};
+
 var getUnregisteredNetworks = function(interfaces, links) {
     var unregistered = [];
 
@@ -75,5 +107,6 @@ module.exports = {
     discoverNewLinks: discoverNewLinks,
     searchNetwork: searchNetwork,
     getUnregisteredNetworks: getUnregisteredNetworks,
-    isNetworkRegistered: isNetworkRegistered
+    isNetworkRegistered: isNetworkRegistered,
+    getInterfacesSameNetwork: getInterfacesSameNetwork
 };

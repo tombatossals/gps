@@ -3,10 +3,8 @@
 
 module.exports = {
 		files: [
-		    'controllers/**/*.js',
-		    'lib/**/*.js',
-		    'models/**/*.js',
-		    'public/js/**/*.js'
+		    'app/**/*.js',
+		    'cli/**/*.js'
     ],
 		options: {
 		    jshintrc: '.jshintrc',

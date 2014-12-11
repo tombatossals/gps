@@ -74,23 +74,22 @@ var NodeModel = function() {
 var Node = new NodeModel();
 
 var getNodesByName = function(nodeNames) {
-    var deferred = Q.defer();
+    var df = Q.defer();
 
     var query = {};
     if (nodeNames && nodeNames.length > 0) {
         query =  { name: { '$in': nodeNames } };
     }
 
-    console.log('hola', query);
     Node.find(query, function(error, nodes) {
         if (error) {
-            deferred.reject();
+            df.reject();
             return;
         }
-        deferred.resolve(nodes);
+        df.resolve(nodes);
     });
 
-    return deferred.promise;
+    return df.promise;
 };
 
 var getNodesByPartialName = function(q) {

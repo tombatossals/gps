@@ -1,25 +1,19 @@
 'use strict';
 
-var mongoose  = require('mongoose'),
-    Link    = require('../models/link'),
-    Node = require('../models/node'),
-    getNodesByName = require('./common').getNodesByName,
-    getLinks = require('./common').getLinks,
-    getRouterboardInfo = require('./mikrotik').getRouterboardInfo,
-    getResourceInfo = require('./mikrotik').getResourceInfo,
-    getOpenWRTSystemInfo = require('./openwrt').getOpenWRTSystemInfo,
-    exec      = require('child_process').exec,
-    fs = require('fs'),
-    util      = require('util'),
-//    sendpush = require('./pushover').sendpush,
-    Q = require('q');
+var nodeModel = require('../../app/models/node');
+var mikrotik  = require('../../app/models/mikrotik');
+var openwrt   = require('../../app/models/openwrt');
+var exec      = require('child_process').exec;
+var fs        = require('fs');
+var util      = require('util');
+var Q         = require('q');
 
 var getRoutingInfo = function getRoutingInfo(node) {
     var deferred = Q.defer();
 
     if (node.system === 'mikrotik') {
-        getRouterboardInfo(node.mainip, node.username, node.password).then(function(routerboard) {
-            getResourceInfo(node.mainip, node.username, node.password).then(function(resource) {
+        mikrotik.getRouterboardInfo(node.mainip, node.username, node.password).then(function(routerboard) {
+            mikrotik.getResourceInfo(node.mainip, node.username, node.password).then(function(resource) {
                 node.sysinfo = {
                     version: resource.version,
                     uptime: resource.uptime,
@@ -36,7 +30,7 @@ var getRoutingInfo = function getRoutingInfo(node) {
             deferred.reject(err);
         });
     } else {
-        getOpenWRTSystemInfo(node.mainip, node.username, node.password).then(function(sysinfo) {
+        openwrt.getOpenWRTSystemInfo(node.mainip, node.username, node.password).then(function(sysinfo) {
             node.sysinfo = {
                 version: sysinfo.version,
                 uptime: sysinfo.uptime,
@@ -58,7 +52,7 @@ var getRoutingInfo = function getRoutingInfo(node) {
 var execute = function execute(nodes) {
     var deferred = Q.defer();
 
-    getNodesByName(nodes).then(function(nodes) {
+    nodeModel.getNodesByName(nodes).then(function(nodes) {
         var promises = [];
         nodes.forEach(function(node) {
             promises.push(getRoutingInfo(node));

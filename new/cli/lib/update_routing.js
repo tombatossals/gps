@@ -1,23 +1,18 @@
 'use strict';
 
-var mongoose  = require('mongoose'),
-    Link    = require('../models/link'),
-    Node = require('../models/node'),
-    getNodesByName = require('./common').getNodesByName,
-    getLinks = require('./common').getLinks,
-    getRoutingTableMikrotik = require('./mikrotik').getRoutingTable,
-    getRoutingTableOpenwrt = require('./openwrt').getRoutingTable,
-    exec      = require('child_process').exec,
-    fs = require('fs'),
-    util      = require('util'),
-//    sendpush = require('./pushover').sendpush,
-    Q = require('q');
+var nodeModel = require('../../app/models/node');
+var mikrotik  = require('../../app/models/mikrotik');
+var openwrt   = require('../../app/models/openwrt');
+var exec      = require('child_process').exec;
+var fs        = require('fs');
+var util      = require('util');
+var Q         = require('q');
 
 var getRoutingInfo = function getRoutingInfo(node) {
     var deferred = Q.defer();
 
     if (node.system === 'mikrotik') {
-        getRoutingTableMikrotik(node.mainip, node.username, node.password).then(function(routing) {
+        mikrotik.getRoutingTable(node.mainip, node.username, node.password).then(function(routing) {
             node.routing = routing;
             node.save(function() {
                 deferred.resolve(routing);
@@ -35,7 +30,7 @@ var getRoutingInfo = function getRoutingInfo(node) {
 var execute = function execute(nodes) {
     var deferred = Q.defer();
 
-    getNodesByName(nodes).then(function(nodes) {
+    nodeModel.getNodesByName(nodes).then(function(nodes) {
         var promises = [];
         nodes.forEach(function(node) {
             promises.push(getRoutingInfo(node));
