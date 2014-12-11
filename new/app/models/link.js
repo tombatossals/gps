@@ -1,7 +1,9 @@
 'use strict';
 
+var node = require('../../app/models/node');
 var mongoose = require('mongoose');
 var Q = require('q');
+var util = require('util');
 
 var linkModel = function() {
     var linkSchema = new mongoose.Schema({
@@ -206,11 +208,75 @@ var addLink = function(nodes) {
     return deferred.promise;
 };
 
+var updateLink = function(link) {
+    var deferred = Q.defer();
+
+    var n1 = link.nodes[0].name;
+    var n2 = link.nodes[1].name;
+
+    nodeModel.getNodesByName([ n1, n2 ]).then(function(err, nodes) {
+        var n1 = nodes[0];
+        var n2 = nodes[1];
+
+        console.log(err);
+
+        if (!n1 || !n2) {
+            link.remove(function() {
+                deferred.reject(util.format('Removed invalid link: %s-%s %s', link.nodes[0].name, link.nodes[1].name, link._id));
+            });
+            return;
+        }
+
+        if (nodes.length !== 2) {
+            deferred.reject(util.format('Node not found: %s-%s %s', n1.name, n2.name, link._id));
+            return;
+        }
+
+        var found = false;
+        var ifaces = getInterfacesSameNetwork(n1, n2);
+
+        if (ifaces.network) {
+            update(link, n1, n2, ifaces).then(function() {
+                deferred.resolve(util.format('Supernode link updated: %s-%s', n1.name, n2.name));
+            });
+        } else {
+            link.remove(function() {
+                deferred.reject(util.format('Removed link not found: %s-%s %s', n1.name, n2.name, link._id));
+            });
+        }
+    });
+
+    return deferred.promise;
+};
+
+var updateNewLinks = function() {
+    var deferred = Q.defer();
+
+    var query =  { 'nodes.iface': { '$exists': false } };
+    Link.find(query, function(error, links) {
+        if (error) {
+            deferred.reject(error);
+            return;
+        }
+        var promises = [];
+        links.forEach(function(link) {
+            promises.push(updateLink(link));
+        });
+        Q.allSettled(promises).then(function(result) {
+            deferred.resolve(result);
+        });
+    });
+
+    return deferred.promise;
+};
+
 module.exports = {
     addLink: addLink,
     getLinkByNodes: getLinkByNodes,
     getLinksByNodeName: getLinksByNodeName,
     getLinksById: getLinksById,
     getLinkByIPs: getLinkByIPs,
-    getLinks: getLinks
+    getLinks: getLinks,
+    updateLink: updateLink,
+    updateNewLinks: updateNewLinks
 };

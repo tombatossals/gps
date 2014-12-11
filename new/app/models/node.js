@@ -2,9 +2,10 @@
 
 var mongoose = require('mongoose');
 var Q = require('q');
+var util = require('util');
 
-var nodeModel = function() {
-    var nodeSchema = mongoose.Schema({
+var NodeModel = function() {
+    var schema = mongoose.Schema({
         name: {
             type: String,
             required: true,
@@ -67,10 +68,10 @@ var nodeModel = function() {
         }
     });
 
-    return mongoose.model('Node', nodeSchema);
+    return mongoose.model('Node', schema);
 };
 
-var Node = new nodeModel();
+var Node = new NodeModel();
 
 var getNodesByName = function(nodeNames) {
     var deferred = Q.defer();
@@ -80,6 +81,7 @@ var getNodesByName = function(nodeNames) {
         query =  { name: { '$in': nodeNames } };
     }
 
+    console.log('hola', query);
     Node.find(query, function(error, nodes) {
         if (error) {
             deferred.reject();
@@ -101,7 +103,7 @@ var getNodesByPartialName = function(q) {
 
     Node.find(query, function(error, nodes) {
         if (error) {
-            deferred.reject();
+            deferred.reject(error);
             return;
         }
         deferred.resolve(nodes);
@@ -149,6 +151,8 @@ var addNode = function(node) {
                 deferred.resolve(newNode);
             });
         }
+    }).fail(function(error) {
+        deferred.reject(error);
     });
 
     return deferred.promise;
