@@ -10,7 +10,7 @@ module.exports = {
 	          expand: true,
 	          cwd: 'public/css',
 	          src: ['**/*.less'],
-	          dest: 'public/css/',
+	          dest: 'public/dist/',
 	          ext: '.css'
 	      }]
 		}

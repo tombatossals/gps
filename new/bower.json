@@ -3,11 +3,13 @@
   "version": "0.0.1",
   "dependencies": {
     "angular": "latest",
+    "semantic-ui": "latest",
     "angular-leaflet-directive": "https://github.com/tombatossals/angular-leaflet-directive.git#master",
     "Leaflet.label": "latest",
     "leaflet-plugins": "latest",
     "Leaflet.awesome-markers": "latest",
-    "angular-route": "latest"
+    "angular-route": "latest",
+    "jquery": "~2.1.1"
   },
   "ignore": [
     "**/.*",
