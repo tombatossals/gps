@@ -7,3 +7,4 @@ backup/
 public/components
 *.iml
 *~
+tmp

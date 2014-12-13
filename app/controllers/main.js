@@ -9,3 +9,7 @@ module.exports = function (app) {
 router.get('/', function (req, res, next) {
     res.render('map');
 });
+
+router.get('/node', function (req, res, next) {
+  res.render('node');
+});

@@ -1,14 +1,7 @@
 'use strict';
 
-// Declare app level module which depends on filters, and services
-angular.module('gps', [ 'ngRoute', 'leaflet-directive']).config(function ($routeProvider, $locationProvider) {
+angular.module('gps', [ 'ngRoute', 'leaflet-directive']).config(function ($locationProvider) {
     $locationProvider.html5Mode(false);
-
-    $routeProvider.when('/node/:node', {
-        templateUrl: 'templates/node.tpl.html',
-    }).when('/link/:n1/:n2', {
-        templateUrl: 'templates/link.tpl.html',
-    });
 });
 
 $(window.document).ready(function() {

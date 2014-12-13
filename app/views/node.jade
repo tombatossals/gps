@@ -1,0 +1,21 @@
+extends ./layout.jade
+block customcss
+    style.
+        html {
+            margin: 2em auto;
+            max-width: 1200px;
+        }
+
+block customjs
+    script(src='/js/routes/node.js')
+
+block content
+    body(ng-app='gps', ng-controller='NodeController')
+        div.ui.page.segment
+            div.grid
+                div.wide.column
+                    div.ui.inverted.blue.menu
+                        a.header.item(href="/") GPS
+                        div.item Node {{ node.name }}
+
+        div.ui.page.ng-view

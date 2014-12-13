@@ -53,17 +53,14 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
         $('.sidebar').sidebar('hide');
     }
 
-    $scope.$on('$locationChangeSuccess', function (event, location){
-        var loc = $location.path().split('/');
-        loc.shift();
-        if (loc[0] === 'node') {
+    $scope.$on('$routeChangeSuccess', function (event, route){
+        if (angular.isDefined(route.params.node)) {
             $scope.nodesPromise.promise.then(function(nodes) {
-                showSidebar(nodes[loc[1]]);
+                showSidebar(nodes[route.params.node]);
             });
-        } else if (loc[0] === 'link') {
+        } else if (angular.isDefined(route.params.n1)) {
             $scope.linksPromise.promise.then(function(links) {
-                console.log(links[loc[1] + '_' + loc[2]]);
-                showSidebar(links[loc[1] + '_' + loc[2]]);
+                showSidebar(links[route.params.n1 + '_' + route.params.n2]);
             });
         }
         $('.sidebar').sidebar({ overlay: true});

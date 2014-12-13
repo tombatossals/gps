@@ -1,14 +1,7 @@
 'use strict';
 
-// Declare app level module which depends on filters, and services
-angular.module('gps', [ 'ngRoute', 'leaflet-directive']).config(["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
+angular.module('gps', [ 'ngRoute', 'leaflet-directive']).config(["$locationProvider", function ($locationProvider) {
     $locationProvider.html5Mode(false);
-
-    $routeProvider.when('/node/:node', {
-        templateUrl: 'templates/node.tpl.html',
-    }).when('/link/:n1/:n2', {
-        templateUrl: 'templates/link.tpl.html',
-    });
 }]);
 
 $(window.document).ready(function() {
@@ -70,17 +63,14 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
         $('.sidebar').sidebar('hide');
     }
 
-    $scope.$on('$locationChangeSuccess', function (event, location){
-        var loc = $location.path().split('/');
-        loc.shift();
-        if (loc[0] === 'node') {
+    $scope.$on('$routeChangeSuccess', function (event, route){
+        if (angular.isDefined(route.params.node)) {
             $scope.nodesPromise.promise.then(function(nodes) {
-                showSidebar(nodes[loc[1]]);
+                showSidebar(nodes[route.params.node]);
             });
-        } else if (loc[0] === 'link') {
+        } else if (angular.isDefined(route.params.n1)) {
             $scope.linksPromise.promise.then(function(links) {
-                console.log(links[loc[1] + '_' + loc[2]]);
-                showSidebar(links[loc[1] + '_' + loc[2]]);
+                showSidebar(links[route.params.n1 + '_' + route.params.n2]);
             });
         }
         $('.sidebar').sidebar({ overlay: true});
@@ -177,6 +167,24 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
                 };
                 $scope.linksPromise.resolve($scope.links);
             });
+        });
+    });
+}]);
+
+'use strict';
+
+/* Controllers */
+
+var app = angular.module('gps');
+
+app.controller('NodeController', ["$scope", "$routeParams", "$http", function($scope, $routeParams, $http) {
+    $scope.$on('$routeChangeSuccess', function (event, route){
+        console.log(route);
+        var nodeName = route.params.node
+
+        $http.get('/api/node/' + nodeName).success(function(data) {
+            console.log(data);
+            $scope.node = data;
         });
     });
 }]);

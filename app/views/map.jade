@@ -1,5 +1,8 @@
 extends ./layout.jade
 
+block customjs
+    script(src='/js/routes/map.js')
+
 block content
     body(ng-app='gps', ng-controller='MapController')
         div.ui.large.inverted.vertical.wide.sidebar.menu

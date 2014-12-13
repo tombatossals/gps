@@ -1,0 +1,29 @@
+<div class="ui grid">
+    <div class="nine wide column">
+        <table class="ui celled striped table">
+            <thead>
+                <tr>
+                    <th colspan='2'>Main node information</th>
+                </tr>
+            <tbody>
+                <tr>
+                    <td>Name</td>
+                    <td>{{ node.name }}</td>
+                </tr>
+                <tr>
+                    <td>IP</td>
+                    <td>{{ node.ip }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="seven wide column">
+        <div class="ui fluid card">
+            <leaflet height='400'></leaflet>
+            <div class="content">
+                <div class="header">Supernodo</div>
+            </div>
+        </div>
+    </div>
+</div>
