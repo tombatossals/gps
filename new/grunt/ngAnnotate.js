@@ -5,8 +5,8 @@ module.exports = {
     dist: {
         files: {
             './public/dist/app.js': [
-                  'public/js/app.js',
-    		          'public/js/controllers.js'
+                'public/js/app.js',
+                'public/js/controllers/map.js'
             ]
         }
     }

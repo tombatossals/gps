@@ -4,7 +4,8 @@
   "dependencies": {
     "angular": "latest",
     "semantic-ui": "latest",
-    "angular-leaflet-directive": "https://github.com/tombatossals/angular-leaflet-directive.git#master",
+    "angular-leaflet-directive": "latest",
+    "Leaflet.ExtraMarkers": "git://github.com/coryasilva/Leaflet.ExtraMarkers#master",
     "Leaflet.label": "latest",
     "leaflet-plugins": "latest",
     "Leaflet.awesome-markers": "latest",

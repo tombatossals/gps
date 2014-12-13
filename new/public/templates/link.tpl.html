@@ -1,0 +1,48 @@
+<div class="item">
+    Link {{ active.name }}
+    <a class="ui label" ng-click="closeSidebar()">
+        <i class="add icon"></i>
+        more
+    </a>
+</div>
+
+<div class="item">
+    <b>Link information</b>
+    <div class="menu">
+        <a class="item">
+            Distance
+            <span class="label">{{ active.distance }}m.</span>
+        </a>
+        <a class="item">
+            Network
+            <span class="label">{{ active.network }}</span>
+        </a>
+        <div class="item">
+            Node
+            <span class="label"><a ng-href="/#/node/{{ active.nodes[0]}}">{{ active.nodes[0] }}</a> - <a ng-href="/#/node/{{ active.nodes[1]}}">{{ active.nodes[1] }}</a></span>
+        </div>
+    </div>
+</div>
+
+<div class="item">
+    <b>OSPF information</b>
+    <div class="menu">
+        <a class="item">
+            {{ active.link.n1.name }} OSPF State
+            <span class="label">{{ active.link.n1.ospf.state }}</span>
+        </a>
+        <a class="item">
+            {{ active.link.n2.name }} OSPF State
+            <span class="label">{{ active.link.n2.ospf.state }}</span>
+        </a>
+    </div>
+</div>
+
+<div class="item">
+    <b>Bandwidth graph</b>
+    <div class="menu">
+        <a class="item">
+            <img ng-src="/graph/bandwidth/{{ active.nodes[0]}}/{{ active.nodes[1]}}" />
+        </a>
+    </div>
+</div>

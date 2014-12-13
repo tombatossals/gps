@@ -1,27 +1,10 @@
 'use strict';
 
-// Declare app level module which depends on filters, and services
-angular.module('gps', [ 'ngRoute', 'leaflet-directive']).config(["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
-    $locationProvider.html5Mode(false);
-
-    $routeProvider.when('/node/:node', {
-        templateUrl: 'templates/node.tpl.html',
-    }).when('/link/:n1/:n2', {
-        templateUrl: 'templates/link.tpl.html',
-    });
-}]);
-
-$(window.document).ready(function() {
-    $('.sidebar').sidebar({ overlay: true});
-});
-
-'use strict';
-
 /* Controllers */
 
 var app = angular.module('gps');
 
-app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$routeParams", "$q", "leafletBoundsHelpers", function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers) {
+app.controller('MapController', function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers) {
 
     angular.extend($scope, {
         center: {
@@ -179,4 +162,4 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
             });
         });
     });
-}]);
+});

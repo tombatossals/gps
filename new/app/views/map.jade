@@ -2,4 +2,8 @@ extends ./layout.jade
 
 block content
     body(ng-app='gps', ng-controller='MapController')
-        leaflet(center='center', bounds='bounds', markers='nodes', paths='links', layers='layers')
+        div.ui.large.inverted.vertical.wide.sidebar.menu
+            div.ui.ng-view
+
+        div.ui.pusher.full
+            leaflet.full(center='center', bounds='bounds', markers='nodes', paths='links', layers='layers')

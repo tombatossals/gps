@@ -1,0 +1,74 @@
+<div class="item">
+    Supernode {{ active.name }}
+    <a class="ui label" ng-click="closeSidebar()">
+        <i class="add icon"></i>
+        more
+    </a>
+</div>
+
+<div class="item">
+    <b>Supernode information</b>
+    <div class="menu">
+        <a class="item">
+            IP
+            <span class="label">{{ active.node.ip }}</span>
+        </a>
+        <a class="item">
+            Uptime
+            <span class="label">{{ active.node.sysinfo.uptime }}</span>
+        </a>
+        <a class="item">
+            Model
+            <span class="label">{{ active.node.sysinfo.model }}</span>
+        </a>
+        <a class="item">
+            Version
+            <span class="label">{{ active.node.sysinfo.version }}</span>
+        </a>
+        <a class="item">
+            Firmware
+            <span class="label">{{ active.node.sysinfo.firmware }}</span>
+        </a>
+    </div>
+</div>
+
+<div class="item">
+    <b>Routing information</b>
+    <div class="menu">
+        <a class="item">
+            Active routes
+            <span class="label">{{ active.node.routing.active }}</span>
+        </a>
+        <a class="item">
+            Inactive routes
+            <span class="label">{{ active.node.routing.inactive }}</span>
+        </a>
+    </div>
+</div>
+
+<div class="item">
+    <b>OSPF Instance information</b>
+    <div class="menu">
+        <a class="item">
+            State
+            <span class="label">{{ active.node.ospf.state }}</span>
+        </a>
+        <a class="item">
+            RouterId
+            <span class="label">{{ active.node.ospf.routerId }}</span>
+        </a>
+        <a class="item">
+            Dijkstras
+            <span class="label">{{ active.node.ospf.dijkstras }}</span>
+        </a>
+    </div>
+</div>
+
+<div class="item">
+    <b>Ping graph</b>
+    <div class="menu">
+        <a class="item">
+            <img ng-src="http://gps.qui.guifi.net/graph/ping/{{ active.name }}/?interval=monthly" />
+        </a>
+    </div>
+</div>
