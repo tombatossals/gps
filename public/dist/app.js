@@ -178,13 +178,52 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
 var app = angular.module('gps');
 
 app.controller('NodeController', ["$scope", "$routeParams", "$http", function($scope, $routeParams, $http) {
+    $scope.center = {
+        lat: 0,
+        lng: 0,
+        zoom: 1
+    };
+    
     $scope.$on('$routeChangeSuccess', function (event, route){
-        console.log(route);
         var nodeName = route.params.node
 
         $http.get('/api/node/' + nodeName).success(function(data) {
             console.log(data);
+            $scope.center = {
+                lat: data.lat,
+                lng: data.lng,
+                zoom: 12
+            };
             $scope.node = data;
         });
     });
+}]);
+
+'use strict';
+
+/* Controllers */
+
+var app = angular.module('gps');
+
+app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", function($scope, $http, leafletBoundsHelpers) {
+  $scope.center = {
+    lat: 0,
+    lng: 0,
+    zoom: 1
+  };
+
+  $scope.$on('$routeChangeSuccess', function (event, route){
+    var n1 = route.params.n1;
+    var n2 = route.params.n2;
+
+    $http.get('/api/link/' + n1 + '/' + n2).success(function(data) {
+      console.log(data);
+      $scope.center = {
+        lat: data.lat,
+        lng: data.lng,
+        zoom: 12
+      };
+      $scope.node = data;
+    });
+  });
 }]);

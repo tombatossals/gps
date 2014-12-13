@@ -22,22 +22,22 @@ module.exports = function (app) {
 
     router.get('/:nodeName', function (req, res) {
         var nodeName = req.params.nodeName;
-        getNodesByName([nodeName]).then(function(nodes) {
-            var nodesPublicInfo = getNodesPublicInfo(nodes);
+        node.getNodesByName([nodeName]).then(function(nodes) {
+            var nodesPublicInfo = node.getNodesPublicInfo(nodes);
             res.json(nodesPublicInfo[nodeName]);
         });
     });
 
     router.get('/:nodeName/links', function(req, res) {
         var nodeName = req.params.nodeName;
-        getLinksByNodeName([nodeName]).then(function(links) {
+        link.getLinksByNodeName([nodeName]).then(function(links) {
             res.send(links);
         });
     });
 
     router.get('/:nodeName/neighbors', function(req, res) {
         var nodeName = req.params.nodeName;
-        getLinksByNodeName(nodeName).then(function(links) {
+        link.getLinksByNodeName(nodeName).then(function(links) {
             var neighbors = [];
             for (var i in links) {
                 var link = links[i];
@@ -49,7 +49,7 @@ module.exports = function (app) {
 
     router.get('/search', function(req, res) {
         var q = req.query.q;
-        getNodesByPartialName(q).then(function(nodes) {
+        node.getNodesByPartialName(q).then(function(nodes) {
             var names = [];
             for (var i in nodes) {
                 names.push({ id: nodes[i].name, text: nodes[i].name });

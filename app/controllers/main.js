@@ -11,5 +11,9 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/node', function (req, res, next) {
-  res.render('node');
+    res.render('node');
+});
+
+router.get('/link', function (req, res, next) {
+    res.render('link');
 });
