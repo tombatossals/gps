@@ -23,7 +23,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
             zoom: 12
         },
         nodes: {},
-        links: {},
+        paths: {},
         linksPromise: $q.defer(),
         nodesPromise: $q.defer(),
         bounds: [],
@@ -78,7 +78,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
 
     $scope.$on('leafletDirectivePath.mouseout', function(event, link) {
         if ($location.path().indexOf("/path") === 0) return;
-        var link = $scope.links[link.pathName];
+        var link = $scope.paths[link.pathName];
         if (!$scope.active || $scope.active.name !== link.name) {
             link.color = link.activeColor;
         }
@@ -86,7 +86,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
 
     $scope.$on('leafletDirectivePath.mouseover', function(event, link) {
         if ($location.path().indexOf("/path") === 0) return;
-        var link = $scope.links[link.pathName];
+        var link = $scope.paths[link.pathName];
         link.color = "#FFF";
     });
 
@@ -147,7 +147,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
 
                 message = '<img style="width: 380px;" src="/graph/bandwidth/' + n1.name + '/' + n2.name + '">';
 
-                $scope.links[n1.name + "_" + n2.name] = {
+                $scope.paths[n1.name + "_" + n2.name] = {
                     id: link._id,
                     type: "polyline",
                     weight: weight,
@@ -164,7 +164,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
                     latlngs: [ l1, l2 ],
                     link: { n1: n1, n2: n2}
                 };
-                $scope.linksPromise.resolve($scope.links);
+                $scope.linksPromise.resolve($scope.paths);
             });
         });
     });
@@ -176,7 +176,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
 
 var app = angular.module('gps');
 
-app.controller('NodeController', ["$scope", "$routeParams", "$http", function($scope, $routeParams, $http) {
+app.controller('NodeController', ["$scope", "$routeParams", "$http", "$window", function($scope, $routeParams, $http, $window) {
     angular.extend($scope, {
         center: {
             lat: 0,
@@ -200,6 +200,10 @@ app.controller('NodeController', ["$scope", "$routeParams", "$http", function($s
         markers: {}
     });
 
+    $scope.$on('leafletDirectiveMarker.click', function(event, node) {
+        $window.location.href = '/#/node/' + $routeParams.node;
+    });
+
     $scope.$on('$routeChangeSuccess', function (event, route){
         var nodeName = route.params.node
 
@@ -212,7 +216,22 @@ app.controller('NodeController', ["$scope", "$routeParams", "$http", function($s
             $scope.markers = {
                 main: {
                     lat: data.lat,
-                    lng: data.lng
+                    lng: data.lng,
+                    icon: {
+                      type: 'awesomeMarker',
+                      icon: 'fa-star',
+                      color: data.alive ? 'blue':'red',
+                      prefix: 'fa',
+                      shape: 'circle',
+                      labelAnchor: [10, -24]
+                    },
+                    label: {
+                      message: '<strong>' + data.name + '</strong>',
+                      direction: 'auto',
+                      options: {
+                        noHide: true
+                      }
+                    },
                 }
             }
             $scope.node = data;
@@ -220,7 +239,6 @@ app.controller('NodeController', ["$scope", "$routeParams", "$http", function($s
 
         $http.get('/api/node/' + nodeName + '/links').success(function(data) {
             var neighbors = {};
-            console.log(data);
             for (var i in data) {
                 var link = data[i];
                 var neighbor = {};
@@ -246,38 +264,108 @@ app.controller('NodeController', ["$scope", "$routeParams", "$http", function($s
 
 var app = angular.module('gps');
 
-app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", function($scope, $http, leafletBoundsHelpers) {
-  angular.extend($scope, {
-    center: {},
-    layers: {
-      baselayers: {
-        googleHybrid: {
-          name: 'Google Hybrid',
-          layerType: 'HYBRID',
-          type: 'google'
+var saturationColor = {
+  0: "#491",
+  1: "#FFFF00",
+  2: "#FF8800",
+  3: "#FF0000"
+};
+
+app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "leafletData", function($scope, $http, leafletBoundsHelpers, leafletData) {
+    angular.extend($scope, {
+        center: {},
+        layers: {
+            baselayers: {
+                googleHybrid: {
+                    name: 'Google Hybrid',
+                    layerType: 'HYBRID',
+                    type: 'google'
+                },
+                osm: {
+                    name: 'OpenStreetMap',
+                    url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    type: 'xyz'
+                }
+            }
         },
-        osm: {
-          name: 'OpenStreetMap',
-          url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          type: 'xyz'
-        }
-      }
-    },
-    markers: {},
-    bounds: {}
-  });
+        markers: {},
+        bounds: {},
+        paths: {}
+    });
 
-  $scope.$on('$routeChangeSuccess', function (event, route){
-      var n1 = route.params.n1;
-      var n2 = route.params.n2;
+    $scope.$on('$routeChangeSuccess', function (event, route){
+        var n1 = route.params.n1;
+        var n2 = route.params.n2;
 
-      $http.get('/api/link/' + n1 + '/' + n2).success(function(data) {
-          $scope.link = data.link;
-          $scope.nodes = data.nodes;
-          n1 = $scope.nodes[data.link.nodes[0].name];
-          n2 = $scope.nodes[data.link.nodes[1].name];
-          $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
-          console.log($scope.bounds);
-      });
-  });
+        $http.get('/api/link/' + n1 + '/' + n2).success(function(data) {
+            $scope.link = data.link;
+            $scope.nodes = data.nodes;
+            n1 = $scope.nodes[data.link.nodes[0].name];
+            n2 = $scope.nodes[data.link.nodes[1].name];
+
+            var weight = data.link.bandwidth/5 + 2;
+            if (weight > 10) {
+                weight = 10;
+            }
+
+            $scope.paths[n1.name + "_" + n2.name] = {
+                weight: weight,
+                saturation: data.link.saturation,
+                color: saturationColor[data.link.saturation],
+                label: {
+                    message: '<h3>Distance</h3><p>' + data.link.distance + ' meters</p>'
+                },
+                opacity: 0.9,
+                latlngs: [
+                    { lat: n1.lat, lng: n1.lng },
+                    { lat: n2.lat, lng: n2.lng }
+                ]
+            };
+
+            $scope.markers = {
+              n1: {
+                  lat: n1.lat,
+                  lng: n1.lng,
+                  icon: {
+                      type: 'awesomeMarker',
+                      icon: 'fa-star',
+                      color: n1.alive ? 'blue':'red',
+                      prefix: 'fa',
+                      shape: 'circle',
+                      labelAnchor: [10, -24]
+                  },
+                  label: {
+                      message: '<strong>' + n1.name + '</strong>',
+                      direction: 'auto',
+                      options: {
+                          noHide: true
+                      }
+                  },
+              },
+              n2: {
+                  lat: n2.lat,
+                  lng: n2.lng,
+                  icon: {
+                      type: 'awesomeMarker',
+                      icon: 'fa-star',
+                      color: n2.alive ? 'blue':'red',
+                      prefix: 'fa',
+                      shape: 'circle',
+                      labelAnchor: [10, -24]
+                  },
+                  label: {
+                      message: '<strong>' + n2.name + '</strong>',
+                      direction: 'auto',
+                      options: {
+                          noHide: true
+                      }
+                  },
+                }
+            };
+
+            leafletData.getMap().then(function(map) {
+                map.fitBounds([[n1.lat, n1.lng], [n2.lat, n2.lng]]);         
+            });
+        });
+    });
 }]);

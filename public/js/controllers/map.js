@@ -13,7 +13,7 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
             zoom: 12
         },
         nodes: {},
-        links: {},
+        paths: {},
         linksPromise: $q.defer(),
         nodesPromise: $q.defer(),
         bounds: [],
@@ -68,7 +68,7 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
 
     $scope.$on('leafletDirectivePath.mouseout', function(event, link) {
         if ($location.path().indexOf("/path") === 0) return;
-        var link = $scope.links[link.pathName];
+        var link = $scope.paths[link.pathName];
         if (!$scope.active || $scope.active.name !== link.name) {
             link.color = link.activeColor;
         }
@@ -76,7 +76,7 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
 
     $scope.$on('leafletDirectivePath.mouseover', function(event, link) {
         if ($location.path().indexOf("/path") === 0) return;
-        var link = $scope.links[link.pathName];
+        var link = $scope.paths[link.pathName];
         link.color = "#FFF";
     });
 
@@ -137,7 +137,7 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
 
                 message = '<img style="width: 380px;" src="/graph/bandwidth/' + n1.name + '/' + n2.name + '">';
 
-                $scope.links[n1.name + "_" + n2.name] = {
+                $scope.paths[n1.name + "_" + n2.name] = {
                     id: link._id,
                     type: "polyline",
                     weight: weight,
@@ -154,7 +154,7 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
                     latlngs: [ l1, l2 ],
                     link: { n1: n1, n2: n2}
                 };
-                $scope.linksPromise.resolve($scope.links);
+                $scope.linksPromise.resolve($scope.paths);
             });
         });
     });

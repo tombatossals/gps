@@ -4,7 +4,7 @@
 
 var app = angular.module('gps');
 
-app.controller('NodeController', function($scope, $routeParams, $http) {
+app.controller('NodeController', function($scope, $routeParams, $http, $window) {
     angular.extend($scope, {
         center: {
             lat: 0,
@@ -28,6 +28,10 @@ app.controller('NodeController', function($scope, $routeParams, $http) {
         markers: {}
     });
 
+    $scope.$on('leafletDirectiveMarker.click', function(event, node) {
+        $window.location.href = '/#/node/' + $routeParams.node;
+    });
+
     $scope.$on('$routeChangeSuccess', function (event, route){
         var nodeName = route.params.node
 
@@ -40,7 +44,22 @@ app.controller('NodeController', function($scope, $routeParams, $http) {
             $scope.markers = {
                 main: {
                     lat: data.lat,
-                    lng: data.lng
+                    lng: data.lng,
+                    icon: {
+                      type: 'awesomeMarker',
+                      icon: 'fa-star',
+                      color: data.alive ? 'blue':'red',
+                      prefix: 'fa',
+                      shape: 'circle',
+                      labelAnchor: [10, -24]
+                    },
+                    label: {
+                      message: '<strong>' + data.name + '</strong>',
+                      direction: 'auto',
+                      options: {
+                        noHide: true
+                      }
+                    },
                 }
             }
             $scope.node = data;
@@ -48,7 +67,6 @@ app.controller('NodeController', function($scope, $routeParams, $http) {
 
         $http.get('/api/node/' + nodeName + '/links').success(function(data) {
             var neighbors = {};
-            console.log(data);
             for (var i in data) {
                 var link = data[i];
                 var neighbor = {};

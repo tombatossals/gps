@@ -10,7 +10,7 @@
     "leaflet-plugins": "latest",
     "Leaflet.awesome-markers": "latest",
     "angular-route": "latest",
-    "jquery": "~2.1.1"
+    "jquery": "latest"
   },
   "ignore": [
     "**/.*",
