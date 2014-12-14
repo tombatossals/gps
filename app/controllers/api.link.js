@@ -3,8 +3,8 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-var node = require('../models/node');
-var link = require('../models/link');
+var nodeModel = require('../models/node');
+var linkModel = require('../models/link');
 
 module.exports = function (app) {
     app.use('/api/link', router);
@@ -13,7 +13,7 @@ module.exports = function (app) {
 
         res.format({
             json: function () {
-                link.getLinks().then(function(links) {
+                linkModel.getLinks().then(function(links) {
                     res.json(links);
                 }).fail(function(err) {
                     res.send(500, { error: err });
@@ -22,12 +22,19 @@ module.exports = function (app) {
         });
     });
 
-    router.get('/:n1/:n2/nodes', function (req, res) {
-        var n1 = req.params.n1,
-            n2 = req.params.n2;
+    router.get('/:n1/:n2', function (req, res) {
+      var n1 = req.params.n1;
+      var n2 = req.params.n2;
 
-        node.getNodesByName([n1, n2]).then(function(nodes) {
-            res.send(node.getNodesPublicInfo(nodes));
-        });
+      nodeModel.getNodesByName([n1, n2]).then(function(nodes) {
+          linkModel.getLinkByNodes(nodes).then(function(link) {
+              var publicNodes = nodeModel.getNodesPublicInfo(nodes);
+              res.send({
+                  link: link,
+                  nodes: publicNodes
+              });
+          });
+
+      });
     });
 };

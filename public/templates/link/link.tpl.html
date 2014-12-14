@@ -3,27 +3,66 @@
         <table class="ui celled striped table">
             <thead>
                 <tr>
-                    <th colspan='2'>Main node information</th>
+                    <th colspan='2'>Link main information</th>
                 </tr>
             <tbody>
                 <tr>
-                    <td>Name</td>
-                    <td>{{ node.name }}</td>
+                    <td>Distance</td>
+                    <td>{{ link.distance }}m.</td>
                 </tr>
                 <tr>
-                    <td>IP</td>
-                    <td>{{ node.ip }}</td>
+                    <td>Network</td>
+                    <td>{{ link.network }}</td>
                 </tr>
             </tbody>
         </table>
-    </div>
-
-    <div class="seven wide column">
-        <div class="ui fluid card">
-            <leaflet center="center" height='400'></leaflet>
-            <div class="content">
-                <div class="header">Supernodo {{ node.name }}</div>
+        <table class="ui celled striped table">
+          <thead>
+            <tr>
+              <th colspan='4'>Link OSPF information</th>
+            </tr>
+            <tr>
+              <th>Node</th>
+              <th>State</th>
+              <th>Adjacency time</th>
+              <th>State changes</th>
+            </tr>
+            <tbody>
+              <tr ng-repeat="node in link.nodes">
+                <td>{{ node.name}}</td>
+                <td>{{ node.ospf.state }}</td>
+                <td>{{ node.ospf.adjacency }}</td>
+                <td>{{ node.ospf.stateChanges }}</td>
+              </tr>
+            </tbody>
+          </table>
+        <div class="nine wide column">
+            <h2>Bandwidth graphs</h2>
+            <div class="ui small images">
+              <img src="/graph/bandwidth/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}">
+              <img src="/graph/bandwidth/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}/?interval=weekly">
+              <img src="/graph/bandwidth/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}/?interval=monthly">
+              <img src="/graph/bandwidth/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}/?interval=year">
             </div>
         </div>
+    </div>
+    <div class="seven wide column">
+        <div class="ui fluid card">
+            <leaflet center="center" markers="markers" layers="layers" bounds="bounds" height='400'></leaflet>
+            <div class="content">
+                <div class="header">Node {{ node.name }}</div>
+            </div>
+        </div>
+        <table class="ui celled striped table">
+          <thead>
+            <tr>
+              <th>Nodes</th>
+            </tr>
+            <tbody>
+              <tr ng-repeat="node in nodes">
+                <td><a ng-href="/node/#/{{ node.name}}">{{ node.name }}</a></td>
+              </tr>
+            </tbody>
+          </table>
     </div>
 </div>

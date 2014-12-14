@@ -178,24 +178,66 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
 var app = angular.module('gps');
 
 app.controller('NodeController', ["$scope", "$routeParams", "$http", function($scope, $routeParams, $http) {
-    $scope.center = {
-        lat: 0,
-        lng: 0,
-        zoom: 1
-    };
-    
+    angular.extend($scope, {
+        center: {
+            lat: 0,
+            lng: 0,
+            zoom: 1
+        },
+        layers: {
+          baselayers: {
+            googleHybrid: {
+              name: 'Google Hybrid',
+              layerType: 'HYBRID',
+              type: 'google'
+            },
+            osm: {
+              name: 'OpenStreetMap',
+              url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              type: 'xyz'
+            }
+          }
+        },
+        markers: {}
+    });
+
     $scope.$on('$routeChangeSuccess', function (event, route){
         var nodeName = route.params.node
 
         $http.get('/api/node/' + nodeName).success(function(data) {
-            console.log(data);
             $scope.center = {
                 lat: data.lat,
                 lng: data.lng,
-                zoom: 12
+                zoom: 16
             };
+            $scope.markers = {
+                main: {
+                    lat: data.lat,
+                    lng: data.lng
+                }
+            }
             $scope.node = data;
         });
+
+        $http.get('/api/node/' + nodeName + '/links').success(function(data) {
+            var neighbors = {};
+            console.log(data);
+            for (var i in data) {
+                var link = data[i];
+                var neighbor = {};
+                if (link.nodes[0].name !== nodeName) {
+                    neighbor.name = link.nodes[0].name;
+                } else {
+                    neighbor.name = link.nodes[1].name;
+                }
+                neighbor.distance = link.distance;
+
+                neighbors[neighbor.name] = neighbor;
+            }
+
+            $scope.neighbors = neighbors;
+        });
+
     });
 }]);
 
@@ -206,24 +248,37 @@ app.controller('NodeController', ["$scope", "$routeParams", "$http", function($s
 var app = angular.module('gps');
 
 app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", function($scope, $http, leafletBoundsHelpers) {
-  $scope.center = {
-    lat: 0,
-    lng: 0,
-    zoom: 1
-  };
+  angular.extend($scope, {
+    center: {},
+    layers: {
+      baselayers: {
+        googleHybrid: {
+          name: 'Google Hybrid',
+          layerType: 'HYBRID',
+          type: 'google'
+        },
+        osm: {
+          name: 'OpenStreetMap',
+          url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          type: 'xyz'
+        }
+      }
+    },
+    markers: {},
+    bounds: {}
+  });
 
   $scope.$on('$routeChangeSuccess', function (event, route){
-    var n1 = route.params.n1;
-    var n2 = route.params.n2;
+      var n1 = route.params.n1;
+      var n2 = route.params.n2;
 
-    $http.get('/api/link/' + n1 + '/' + n2).success(function(data) {
-      console.log(data);
-      $scope.center = {
-        lat: data.lat,
-        lng: data.lng,
-        zoom: 12
-      };
-      $scope.node = data;
-    });
+      $http.get('/api/link/' + n1 + '/' + n2).success(function(data) {
+          $scope.link = data.link;
+          $scope.nodes = data.nodes;
+          n1 = $scope.nodes[data.link.nodes[0].name];
+          n2 = $scope.nodes[data.link.nodes[1].name];
+          $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
+          console.log($scope.bounds);
+      });
   });
 }]);

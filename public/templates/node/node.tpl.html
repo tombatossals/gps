@@ -14,16 +14,91 @@
                     <td>IP</td>
                     <td>{{ node.ip }}</td>
                 </tr>
+                <tr>
+                    <td>Hardware</td>
+                    <td>{{ node.sysinfo.model }}</td>
+                </tr>
+                <tr>
+                  <td>Uptime</td>
+                  <td>{{ node.sysinfo.uptime }}</td>
+                </tr>
+                <tr>
+                  <td>Omnitik</td>
+                  <td>{{ node.omnitik && 'Yes' || 'No' }}</td>
+                </tr>
             </tbody>
         </table>
-    </div>
-
-    <div class="seven wide column">
-        <div class="ui fluid card">
-            <leaflet center="center" height='400'></leaflet>
-            <div class="content">
-                <div class="header">Supernodo {{ node.name }}</div>
+        <table class="ui celled striped table">
+          <thead>
+            <tr>
+              <th colspan='2'>Routing information</th>
+            </tr>
+            <tbody>
+              <tr>
+                <td>Active routes</td>
+                <td>{{ node.routing.active }}</td>
+              </tr>
+              <tr>
+                <td>Inactive routes</td>
+                <td>{{ node.routing.inactive }}</td>
+              </tr>
+              <tr>
+                <td>OSPF state</td>
+                <td>{{ node.ospf.state }}</td>
+              </tr>
+              <tr>
+                <td>Dijkstras</td>
+                <td>{{ node.ospf.dijkstras }}</td>
+              </tr>
+              <tr>
+                <td>RouterId</td>
+                <td>{{ node.ospf.routerId }}</td>
+              </tr>
+            </tbody>
+        </table>
+        <div class="nine wide column" ng-if="node.omnitik">
+            <h2>Graphs of connected users to the Omnitik</h2>
+            <div class="ui small images">
+              <img ng-src="/graph/users/{{ node.name }}">
+              <img ng-src="/graph/users/{{ node.name }}/?interval=weekly">
+              <img ng-src="/graph/users/{{ node.name }}/?interval=monthly">
+              <img ng-src="/graph/users/{{ node.name }}/?interval=year">
             </div>
         </div>
+        <div class="nine wide column">
+          <h2>Graphs of ping latency</h2>
+          <div class="ui small images">
+            <img ng-src="/graph/ping/{{ node.name }}">
+            <img ng-src="/graph/ping/{{ node.name }}/?interval=weekly">
+            <img ng-src="/graph/ping/{{ node.name }}/?interval=monthly">
+            <img ng-src="/graph/ping/{{ node.name }}/?interval=year">
+          </div>
+        </div>
+    </div>
+    <div class="seven wide column">
+        <div class="ui fluid card">
+            <leaflet center="center" markers="markers" layers="layers" height='400'></leaflet>
+            <div class="content">
+                <div class="header">Node {{ node.name }}</div>
+            </div>
+        </div>
+        <table class="ui celled striped table">
+          <thead>
+            <tr>
+              <th colspan='3'>Neighbors</th>
+            </tr>
+            <tr>
+              <th>Node</th>
+              <th>P2P link</th>
+              <th>Distance</th>
+            </tr>
+            <tbody>
+              <tr ng-repeat="neighbor in neighbors">
+                <td><a ng-href="/node/#/{{ neighbor.name}}">{{ neighbor.name }}</a></td>
+                <td><a ng-href="/link/#/{{ node.name }}/{{ neighbor.name}}">{{ node.name }} - {{ neighbor.name }}</a></td>
+                <td><span class="ui label">{{ neighbor.distance }}m.</span></td>
+              </tr>
+            </tbody>
+          </table>
     </div>
 </div>
