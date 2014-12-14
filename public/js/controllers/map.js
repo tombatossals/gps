@@ -136,7 +136,6 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
                 }
 
                 message = '<img style="width: 380px;" src="/graph/bandwidth/' + n1.name + '/' + n2.name + '">';
-                message = '<img style="width: 380px;" src="http://gps.qui.guifi.net/graph/bandwidth/acometidas/bartolo">';
 
                 $scope.links[n1.name + "_" + n2.name] = {
                     id: link._id,

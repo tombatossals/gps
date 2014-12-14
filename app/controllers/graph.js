@@ -24,7 +24,7 @@ router.get('/ping/:nodeName', function(req, res) {
     nodeModel.getNodesByName([ nodeName ]).then(function(nodes) {
         var node = nodes[0];
 
-        var a = '/var/lib/collectd/solicom5/ping/ping-' + node.mainip + '.rrd';
+        var a = '/var/lib/collectd/gps/ping/ping-' + node.mainip + '.rrd';
         if (!fs.existsSync(a)) {
             res.send(404);
             return;
