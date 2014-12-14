@@ -1,5 +1,0 @@
-{>"layouts/master-map" /}
-
-{<body}
-    <leaflet center="center" bounds="bounds" markers="nodes" paths="links" layers="layers"></leaflet>
-{/body}
