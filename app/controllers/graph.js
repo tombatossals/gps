@@ -173,7 +173,7 @@ router.get('/bandwidth/:n1/:n2', function (req, res) {
         var n1 = nodes[0],
             n2 = nodes[1];
 
-        getLinkByNodes(nodes).then(function(link) {
+        linkModel.getLinkByNodes(nodes).then(function(link) {
 
             if (!link) {
                 throw 'Link not found';

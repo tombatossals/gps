@@ -38,9 +38,11 @@
           </table>
         <div class="nine wide column">
             <h2>Bandwidth graphs</h2>
-            <div class="ui small images">
+            <div class="ui medium images">
               <img src="/graph/bandwidth/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}">
               <img src="/graph/bandwidth/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}/?interval=weekly">
+            </div>
+            <div class="ui medium images">
               <img src="/graph/bandwidth/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}/?interval=monthly">
               <img src="/graph/bandwidth/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}/?interval=year">
             </div>

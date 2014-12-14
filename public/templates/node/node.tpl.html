@@ -58,18 +58,22 @@
         </table>
         <div class="nine wide column" ng-if="node.omnitik">
             <h2>Graphs of connected users to the Omnitik</h2>
-            <div class="ui small images">
+            <div class="ui medium images">
               <img ng-src="/graph/users/{{ node.name }}">
               <img ng-src="/graph/users/{{ node.name }}/?interval=weekly">
+            </div>
+            <div class="ui medium images">
               <img ng-src="/graph/users/{{ node.name }}/?interval=monthly">
               <img ng-src="/graph/users/{{ node.name }}/?interval=year">
             </div>
         </div>
         <div class="nine wide column">
           <h2>Graphs of ping latency</h2>
-          <div class="ui small images">
+          <div class="ui medium images">
             <img ng-src="/graph/ping/{{ node.name }}">
             <img ng-src="/graph/ping/{{ node.name }}/?interval=weekly">
+          </div>
+          <div class="ui medium images">
             <img ng-src="/graph/ping/{{ node.name }}/?interval=monthly">
             <img ng-src="/graph/ping/{{ node.name }}/?interval=year">
           </div>
