@@ -83,7 +83,6 @@ var execute = function execute(nodes) {
             results = [];
 
         var promises = nodes.reduce(function(prev, node)  {
-            console.log(node.name);
             return prev.then(function(partialResult) {
                 results.push({
                     state: 'fulfilled',
