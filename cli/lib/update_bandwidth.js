@@ -132,7 +132,7 @@ function execute(nodes) {
         });
     } else {
         var query = { active: true };
-        limkModel.getLinks(query).then(function(links) {
+        linkModel.getLinks(query).then(function(links) {
             var promises = [];
             links.forEach(function(link) {
                 promises.push(updateBandwidthLink(link));

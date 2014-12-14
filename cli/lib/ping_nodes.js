@@ -14,7 +14,6 @@ var pingNode = function(node) {
             alive = false;
         }
 
-        console.log(node.name, alive);
         node.alive = alive;
         node.save(function(err) {
             df.resolve('Node alive: ' + alive);
