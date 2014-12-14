@@ -1,16 +1,15 @@
 'use strict';
 
-var util      = require('util'),
-    getConnectedUsers = require('./mikrotik').getConnectedUsers,
-    getNodesByName = require('./common').getNodesByName,
-    INTERVAL = require('./common').INTERVAL,
-    updateNode = require('./common').updateNode,
-    Q = require('q');
-
+var Q = require('q');
+var util      = require('util');
+var nodeModel = require('../../app/models/node');
+var linkModel = require('../../app/models/link')
+var mikrotik  = require('../../app/models/mikrotik');
+var INTERVAL = require('../../config/gps').interval;
 
 function monitorOmnitikUsers(node) {
     var deferred = Q.defer();
-    getConnectedUsers(node).then(function(users) {
+    mikrotik.getConnectedUsers(node).then(function(users) {
         if (users && users.hasOwnProperty('good')) {
             if (users && users.good && users.bad && !isNaN(users.good + users.bad)) {
                 node.connectedUsers = users.good + users.bad;
@@ -31,7 +30,7 @@ function monitorOmnitikUsers(node) {
 
 function execute(nodes) {
     var deferred = Q.defer();
-    getNodesByName(nodes).then(function(nodes) {
+    nodeModel.getNodesByName(nodes).then(function(nodes) {
         var promises = [];
         nodes.forEach(function(node) {
             if (node.omnitik === true) {
