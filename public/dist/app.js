@@ -16,12 +16,12 @@ var app = angular.module('gps');
 
 app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$routeParams", "$q", "leafletBoundsHelpers", function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers) {
 
+    $http.get('json/center.json').success(function(data) {
+	$scope.center = data.center;
+    });
+
     angular.extend($scope, {
-        center: {
-            lat: 40.000531,
-            lng: -0.039139,
-            zoom: 12
-        },
+	center: {},
         nodes: {},
         paths: {},
         linksPromise: $q.defer(),
