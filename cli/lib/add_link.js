@@ -45,7 +45,6 @@ function execute(linkFiles) {
     });
 
     Q.allSettled(promises).then(function(results) {
-        console.log(results);
         deferred.resolve(results);
     });
 
