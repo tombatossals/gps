@@ -273,7 +273,7 @@ var updateLink = function(link) {
             });
         } else {
             link.remove(function() {
-                deferred.reject(util.format('Removed link not found: %s-%s %s', n1.name, n2.name, link._id));
+                deferred.reject(util.format('Removed link not found: %s-%s', n1.name, n2.name));
             });
         }
     });
