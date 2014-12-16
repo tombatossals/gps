@@ -2,6 +2,8 @@
     "name": "vilafames",
     "system": "mikrotik",
     "mainip": "10.90.120.201",
+    "username": "guest",
+    "password": "",
     "latlng": {
         "lat": 40.113274,
         "lng": -0.054119

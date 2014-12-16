@@ -55,6 +55,7 @@ action.execute(optional).then(function(results) {
     for (var i in results) {
         var res = results[i];
         if (res.state === 'rejected') {
+            console.log(res.reason);
             logger.warn(res.reason);
         } else {
             logger.debug(res.value);

@@ -138,23 +138,33 @@ var updateNode = function(node) {
 };
 
 var addNode = function(node) {
-    var deferred = Q.defer();
+    var df = Q.defer();
 
+    var required = [ 'name', 'mainip', 'system', 'username', 'password', 'latlng' ];
     var nodeName = node.name;
     getNodesByName([nodeName]).then(function(nodes) {
         if (nodes.length > 0) {
-            deferred.reject(util.format('The node %s already exists', nodeName));
+            df.reject(util.format('The node %s already exists', nodeName));
         } else {
-            var newNode = new Node ({ name : node.name, latlng: { lat: node.latlng.lat, lng: node.latlng.lng } });
+            for (var r in required) {
+                var req = required[r];
+
+                if (!node[req]) {
+                    df.reject(util.format('The parameter "%s" is required', req));
+                    return;
+                }
+            }
+
+            var newNode = new Node ({ name : node.name, mainip: node.mainip, system: node.system, username: node.username, password: node.password, latlng: { lat: node.latlng.lat, lng: node.latlng.lng } });
             newNode.save(function() {
-                deferred.resolve(newNode);
+                df.resolve(newNode);
             });
         }
     }).fail(function(error) {
-        deferred.reject(error);
+        df.reject(error);
     });
 
-    return deferred.promise;
+    return df.promise;
 };
 
 var getNodesById = function(nodeIds) {
