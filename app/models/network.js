@@ -19,7 +19,7 @@ var isNetworkRegistered = function(address, links) {
 var getInterfaceInNetwork = function(node, network) {
     for (var i in node.interfaces) {
         var iface = node.interfaces[i];
-        if (iface && iface.address && (iface.address.search('172.16') === 0 || iface.address.search('10.') === 0)) {
+        if (iface && iface.address && (iface.address.search('172.') === 0 || iface.address.search('10.') === 0)) {
             var address = iface.address.split('/')[0];
             if (network.contains(address)) {
                 return iface;
@@ -33,7 +33,7 @@ var getInterfacesSameNetwork = function(n1, n2) {
 
     for (var i in n1.interfaces) {
         var iface = n1.interfaces[i];
-        if (iface && iface.address && (iface.address.search('172.16') === 0 || iface.address.search('10.') === 0)) {
+        if (iface && iface.address && (iface.address.search('172.') === 0 || iface.address.search('10.') === 0)) {
             var network = new Netmask(iface.address);
             var iface2 = getInterfaceInNetwork(n2, network);
 
@@ -55,7 +55,7 @@ var getUnregisteredNetworks = function(interfaces, links) {
         var iface = interfaces[i],
             address = iface.address;
 
-        if (address && address.indexOf('172.16.') === 0) {
+        if (address && address.indexOf('172.') === 0) {
             if (!isNetworkRegistered(address, links)) {
                 unregistered.push(address);
             }
@@ -74,7 +74,7 @@ var searchNetwork = function(network, mainNode, nodes) {
 
         for (var j in node.interfaces) {
             var iface = node.interfaces[j];
-            if (iface.address && iface.address.indexOf('172.16.') === 0 && net.contains(iface.address)) {
+            if (iface.address && iface.address.indexOf('172.') === 0 && net.contains(iface.address)) {
                 console.log('Found new link from ' + mainNode.name + ' to ' + node.name + ':' + iface.address);
                 break;
             }
