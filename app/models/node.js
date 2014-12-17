@@ -149,7 +149,7 @@ var addNode = function(node) {
             for (var r in required) {
                 var req = required[r];
 
-                if (!node[req]) {
+                if (node[req] === undefined) {
                     df.reject(util.format('The parameter "%s" is required', req));
                     return;
                 }
