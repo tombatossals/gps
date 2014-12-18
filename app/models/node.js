@@ -11,6 +11,9 @@ var NodeModel = function() {
             required: true,
             unique: true
         },
+        sshPort: {
+            type: Number
+        },
         email: {
             type: String
         },

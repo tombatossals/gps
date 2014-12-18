@@ -273,6 +273,7 @@ var bandwidthTest = function(link, n1, n2) {
 
     var c = new sshConn();
     var ip = n1.mainip;
+    var sshPort = n1.sshPort || 22;
     var username = n1.username;
     var password = n1.password;
     var username2 = n2.username;
@@ -321,7 +322,7 @@ var bandwidthTest = function(link, n1, n2) {
 
     c.connect({
         host: ip,
-        port: 22,
+        port: sshPort,
         username: username,
         password: password || '-'
     });
