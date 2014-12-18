@@ -9,7 +9,9 @@ var config = {
       name: 'a'
     },
     port: 3000,
-    db: 'mongodb://localhost/gps'
+    db: 'mongodb://localhost/gps',
+    rrdpath: '/var/lib/collectd/rrd',
+    hostname: 'gps.gps.ebrecloud.com'
 
   },
 
@@ -19,7 +21,9 @@ var config = {
       name: 'a'
     },
     port: 3000,
-    db: 'mongodb://localhost/gps'
+    db: 'mongodb://localhost/gps',
+    rrdpath: '/var/lib/collectd/rrd',
+    hostname: 'gps.gps.ebrecloud.com'
 
   },
 
@@ -29,7 +33,9 @@ var config = {
       name: 'a'
     },
     port: 3000,
-    db: 'mongodb://localhost/gps'
+    db: 'mongodb://localhost/gps',
+    rrdpath: '/var/lib/collectd/rrd',
+    hostname: 'gps.gps.ebrecloud.com'
 
   }
 };

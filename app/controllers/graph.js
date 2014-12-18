@@ -5,7 +5,9 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 var nodeModel = require('../models/node');
 var linkModel = require('../models/link');
-
+var rrdpath = require('../../config/config').rrdpath;
+var hostname = require('../../config/config').hostname;
+var util = require('util');
 
 
 module.exports = function (app) {
@@ -24,7 +26,7 @@ router.get('/ping/:nodeName', function(req, res) {
     nodeModel.getNodesByName([ nodeName ]).then(function(nodes) {
         var node = nodes[0];
 
-        var a = '/var/lib/collectd/gps/ping/ping-' + node.mainip + '.rrd';
+        var a = util.format('%s/%s/ping/ping-%s.rrd', rrdpath, hostname, node.mainip);
         if (!fs.existsSync(a)) {
             res.send(404);
             return;
@@ -65,7 +67,7 @@ router.get('/users/:nodeName', function(req, res) {
     var interval = req.query.interval;
 
     nodeModel.getNodesByName([ nodeName ]).then(function(nodes) {
-        var a = '/var/lib/collectd/' + nodeName + '/node/connected_users.rrd';
+        var a = util.format('%s/%s/node/connected_users.rrd', rrdpath, nodeName);
         if (!fs.existsSync(a)) {
             res.send(404);
             return;
@@ -130,9 +132,9 @@ var getStartAndStep = function(interval) {
 };
 
 var getRRDFiles = function(n1, n2, link) {
-    var a = '/var/lib/collectd/' + n1.name + '/links/bandwidth-' + n2.name + '.rrd',
-        b,
-        iface;
+    var a = util.format('%s/%s/links/bandwidth-%s.rrd', rrdpath, n1.name, n2.name);
+    var b;
+    var iface;
 
     if (fs.existsSync(a)) {
         if (n1._id.toString() === link.nodes[0].id) {
@@ -141,16 +143,16 @@ var getRRDFiles = function(n1, n2, link) {
           iface = link.nodes[1].iface;
         }
         iface = iface.replace(/:[0-9]+\./, '.');
-        b = '/var/lib/collectd/' + n1.name + '/snmp/if_octets-' + iface + '.rrd';
+        b = util.format('%s/%s/snmp/if_octets-%s.rrd', rrdpath, n1.name, iface);
     } else {
-        a = '/var/lib/collectd/' + n2.name + '/links/bandwidth-' + n1.name + '.rrd';
+        a = util.format('%s/%s/links/bandwidth-%s.rrd', rrdpath, n2.name, n1.name);
         if (n2._id.toString() === link.nodes[1].id) {
           iface = link.nodes[1].iface;
         } else {
           iface = link.nodes[0].iface;
         }
         iface = iface.replace(/:[0-9]+/, '');
-        b = '/var/lib/collectd/' + n2.name + '/snmp/if_octets-' + iface + '.rrd';
+        b = util.format('%s/%s/snmp/if_octets-%s.rrd', rrdpath, n2.name, iface);
     }
 
     return {
