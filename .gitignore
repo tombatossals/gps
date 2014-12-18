@@ -5,6 +5,7 @@ node_modules/
 log/
 backup/
 public/components
+public/json/center.json
 *.iml
 *~
 tmp
