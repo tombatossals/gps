@@ -7,7 +7,7 @@ var app = angular.module('gps');
 app.controller('MapController', function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers) {
 
     $http.get('json/center.json').success(function(data) {
-	$scope.center = data.center;
+	      $scope.center = data.center;
     });
 
     angular.extend($scope, {

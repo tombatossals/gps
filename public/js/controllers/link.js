@@ -11,7 +11,7 @@ var saturationColor = {
   3: "#FF0000"
 };
 
-app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, leafletData) {
+app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, leafletData, $window) {
     angular.extend($scope, {
         center: {},
         layers: {
@@ -31,6 +31,15 @@ app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, l
         markers: {},
         bounds: {},
         paths: {}
+    });
+
+    $scope.$on('leafletDirectivePath.click', function(event, link) {
+        $window.location.href = '/#/link/' + link.pathName.replace('_', '/');
+    });
+
+
+    $scope.$on('leafletDirectiveMarker.click', function(event, node) {
+        $window.location.href = '/#/node/' + node.name;
     });
 
     $scope.$on('$routeChangeSuccess', function (event, route){
@@ -53,7 +62,7 @@ app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, l
                 saturation: data.link.saturation,
                 color: saturationColor[data.link.saturation],
                 label: {
-                    message: '<h3>Distance</h3><p>' + data.link.distance + ' meters</p>'
+                    message: '<p>' + data.link.distance + ' meters</p>'
                 },
                 opacity: 0.9,
                 latlngs: [
@@ -104,7 +113,7 @@ app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, l
             };
 
             leafletData.getMap().then(function(map) {
-                map.fitBounds([[n1.lat, n1.lng], [n2.lat, n2.lng]]);         
+                map.fitBounds([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
             });
         });
     });

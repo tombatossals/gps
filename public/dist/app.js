@@ -17,7 +17,7 @@ var app = angular.module('gps');
 app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$routeParams", "$q", "leafletBoundsHelpers", function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers) {
 
     $http.get('json/center.json').success(function(data) {
-	$scope.center = data.center;
+	      $scope.center = data.center;
     });
 
     angular.extend($scope, {
@@ -271,7 +271,7 @@ var saturationColor = {
   3: "#FF0000"
 };
 
-app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "leafletData", function($scope, $http, leafletBoundsHelpers, leafletData) {
+app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "leafletData", "$window", function($scope, $http, leafletBoundsHelpers, leafletData, $window) {
     angular.extend($scope, {
         center: {},
         layers: {
@@ -291,6 +291,15 @@ app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "le
         markers: {},
         bounds: {},
         paths: {}
+    });
+
+    $scope.$on('leafletDirectivePath.click', function(event, link) {
+        $window.location.href = '/#/link/' + link.pathName.replace('_', '/');
+    });
+
+
+    $scope.$on('leafletDirectiveMarker.click', function(event, node) {
+        $window.location.href = '/#/node/' + node.name;
     });
 
     $scope.$on('$routeChangeSuccess', function (event, route){
@@ -313,7 +322,7 @@ app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "le
                 saturation: data.link.saturation,
                 color: saturationColor[data.link.saturation],
                 label: {
-                    message: '<h3>Distance</h3><p>' + data.link.distance + ' meters</p>'
+                    message: '<p>' + data.link.distance + ' meters</p>'
                 },
                 opacity: 0.9,
                 latlngs: [
@@ -364,7 +373,7 @@ app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "le
             };
 
             leafletData.getMap().then(function(map) {
-                map.fitBounds([[n1.lat, n1.lng], [n2.lat, n2.lng]]);         
+                map.fitBounds([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
             });
         });
     });
