@@ -1,5 +1,6 @@
 'use strict';
 
+var apissl = require('../../config/gps').apissl || false;
 var api = require('mikronode'),
     util = require('util'),
     sshConn  = require('ssh2'),
@@ -42,7 +43,7 @@ var getConnectedUsers = function(node) {
         ip = node.omnitikip;
     }
 
-    var connection = new api(ip, username, password);
+    var connection = new api(ip, username, password, { tls: apissl });
     connection.on('error', function(err) {
         deferred.reject(util.format('FATAL: Can\'t connect to the API: %s %s %s', ip, username, password));
     });
@@ -76,9 +77,12 @@ var getConnectedUsers = function(node) {
 var getips = function(node) {
     var deferred = Q.defer();
 
-    var ip = node.mainip;
-    var connection = new api(ip, node.username, node.password);
+    if (node.apissl !== undefined) {
+        apissl = node.apissl;
+    }
 
+    var ip = node.mainip;
+    var connection = new api(ip, node.username, node.password, { tls: apissl });
     connection.on('error', function(err) {
         deferred.reject(node);
     });
@@ -108,8 +112,8 @@ var getips = function(node) {
 
 var getNeighborInfo = function(ip, username, password) {
 
-    var deferred = Q.defer(),
-        connection = new api(ip, username, password);
+    var deferred = Q.defer();
+    var connection = new api(ip, username, password, { tls: apissl });
 
     connection.on('error', function(err) {
         deferred.reject('Error on getting routeros version:' + err);
@@ -133,7 +137,7 @@ var getNeighborInfo = function(ip, username, password) {
 var getOSPFInstanceInfo = function(ip, username, password) {
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password);
+        connection = new api(ip, username, password, { tls: apissl });
 
     connection.on('error', function(err) {
         deferred.reject('Error on getting routeros version:' + err);
@@ -157,7 +161,7 @@ var getOSPFInstanceInfo = function(ip, username, password) {
 var getResourceInfo = function(ip, username, password) {
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password);
+        connection = new api(ip, username, password, { tls: apissl });
 
     connection.on('error', function(err) {
         deferred.reject('Error on getting routeros version:' + err);
@@ -181,7 +185,7 @@ var getResourceInfo = function(ip, username, password) {
 var getRouterboardInfo = function(ip, username, password) {
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password);
+        connection = new api(ip, username, password, { tls: apissl });
 
     connection.on('error', function(err) {
         deferred.reject('Error on getting routeros version:' + err);
@@ -205,7 +209,7 @@ var getRouterboardInfo = function(ip, username, password) {
 var getRoutingTable = function(ip, username, password) {
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password);
+        connection = new api(ip, username, password, { tls: apissl });
 
     connection.on('error', function(err) {
         deferred.reject('Error on getting routing table:' + err);
@@ -240,7 +244,7 @@ var getRoutingTable = function(ip, username, password) {
 var traceroute = function(ip, username, password, remoteip) {
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password);
+        connection = new api(ip, username, password, { tls: apissl });
 
     connection.on('error', function(err) {
         deferred.reject('Error on traceroute:' + err);

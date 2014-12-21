@@ -5,8 +5,8 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 var nodeModel = require('../models/node');
 var linkModel = require('../models/link');
-var rrdpath = require('../../config/config').rrdpath;
-var hostname = require('../../config/config').hostname;
+var rrdpath = require('../../config/gps').rrdpath;
+var hostname = require('../../config/gps').hostname;
 var util = require('util');
 
 

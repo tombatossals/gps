@@ -20,7 +20,7 @@
     "jade": "^1.8.1",
     "load-grunt-config": "^0.16.0",
     "method-override": "^2.3.0",
-    "mikronode": "^0.3.3",
+    "mikronode": "tombatossals/mikronode.git#release",
     "mongoose": "~3.8.12",
     "morgan": "^1.5.0",
     "net-ping": "^1.1.11",

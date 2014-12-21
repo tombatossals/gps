@@ -272,9 +272,12 @@ var updateLink = function(link) {
                 deferred.resolve(util.format('Supernode link updated: %s-%s', n1.name, n2.name));
             });
         } else {
+            deferred.reject(util.format('Removed link not found: %s-%s', n1.name, n2.name));
+		/*
             link.remove(function() {
                 deferred.reject(util.format('Removed link not found: %s-%s', n1.name, n2.name));
             });
+		*/
         }
     });
 

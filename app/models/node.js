@@ -40,6 +40,9 @@ var NodeModel = function() {
         password: {
             type: String
         },
+        apissl: {
+            type: Boolean
+        },
         omnitik: {
             type: Boolean
         },
