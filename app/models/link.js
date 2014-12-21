@@ -126,7 +126,9 @@ var getLinkByIPs = function(ippair) {
             var node2 = node;
             getLinkByNodes([node1, node2]).then(function(link) {
                 deferred.resolve(link);
-            });
+            }).fail(function(err) {
+		deferred.reject(err);
+	    });
         }).fail(function(err) {
             deferred.reject(err);
         });
@@ -183,7 +185,7 @@ var getLinkByNodes = function(nodes) {
 
     var query = { 'nodes.id': { '$all': [ nodes[0]._id.toString(), nodes[1]._id.toString() ] } };
     Link.findOne(query, function(error, link) {
-        if (error) {
+        if (error || !link) {
             deferred.reject();
             return;
         }

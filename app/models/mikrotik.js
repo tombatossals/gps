@@ -206,10 +206,13 @@ var getRouterboardInfo = function(ip, username, password) {
     return deferred.promise.timeout(10000);
 };
 
-var getRoutingTable = function(ip, username, password) {
+var getRoutingTable = function(node) {
 
-    var deferred = Q.defer(),
-        connection = new api(ip, username, password, { tls: apissl });
+    var deferred = Q.defer();
+    var ip = node.mainip;
+    var username = node.username;
+    var password = node.password;
+    var connection = new api(ip, username, password, { tls: apissl });
 
     connection.on('error', function(err) {
         deferred.reject('Error on getting routing table:' + err);
@@ -217,7 +220,7 @@ var getRoutingTable = function(ip, username, password) {
 
     connection.connect(function(conn) {
         var chan=conn.openChannel();
-        chan.write([ '/ip/route/print' ], function() {
+        chan.write([ '/ip/route/print', '=.proplist=.id,active' ], function() {
             chan.on('done', function(data) {
                 var parsed = api.parseItems(data);
                 var routing = {
