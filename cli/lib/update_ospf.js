@@ -22,18 +22,18 @@ var getLinkInformation = function(neighbor, node) {
         };
         link.nodes = nodes;
         link.save(function() {
-            df.resolve();
+            df.resolve(util.format('Successfully saved link ospf information on %s-%s', nodes[0].name, nodes[1].name));
         });
     }).fail(function(err) {
-        df.reject(err);
+        df.resolve(util.format('Link not found: %s-%s', node.mainip, neighbor.address));
     });
     return df.promise;
 };
 
 var getOSPFInfo = function getOSPFInfo(node) {
-    var deferred = Q.defer(),
-        getNeighborInfo,
-        getOSPFInstanceInfo;
+    var deferred = Q.defer();
+    var getNeighborInfo;
+    var getOSPFInstanceInfo;
 
     if (node.system === 'mikrotik') {
         getNeighborInfo = mikrotik.getNeighborInfo;
@@ -44,14 +44,14 @@ var getOSPFInfo = function getOSPFInfo(node) {
     }
 
     getNeighborInfo(node.mainip, node.username, node.password).then(function(neighbors) {
-        var promises = [];
         var first = neighbors.shift();
+	var results = [];
 
-        neighbors.reduce(function(prev, neighbor) {
+        var promises = neighbors.reduce(function(prev, neighbor) {
             return prev.then(getLinkInformation(neighbor, node));
         }, getLinkInformation(first, node));
 
-        Q.all(promises).then(function() {
+        promises.then(function(result) {
             getOSPFInstanceInfo(node.mainip, node.username, node.password).then(function(instance) {
                 node.ospf = {
                     routerId: instance['router-id'],
@@ -83,17 +83,21 @@ var execute = function execute(nodes) {
             results = [];
 
         var promises = nodes.reduce(function(prev, node)  {
-            return prev.then(function(partialResult) {
+            return prev.then(function(result) {
                 results.push({
                     state: 'fulfilled',
-                    value: partialResult
+                    value: result 
                 });
-                return prev.then(getOSPFInfo(node));
+                return getOSPFInfo(node);
             });
         }, getOSPFInfo(first));
 
         promises.then(function(result) {
-            deferred.resolve(result);
+            results.push({
+                state: 'fulfilled',
+                value: result
+            });
+            deferred.resolve(results);
         });
     });
 

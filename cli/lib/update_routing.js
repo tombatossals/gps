@@ -12,10 +12,10 @@ var getRoutingInfo = function getRoutingInfo(node) {
     var deferred = Q.defer();
 
     if (node.system === 'mikrotik') {
-        mikrotik.getRoutingTable(node.mainip, node.username, node.password).then(function(routing) {
+        mikrotik.getRoutingTable(node).then(function(routing) {
             node.routing = routing;
             node.save(function() {
-                deferred.resolve(routing);
+                deferred.resolve('Successfully saved routing information for ' + node.name);
             });
         }).fail(function(err) {
             deferred.reject(err);
