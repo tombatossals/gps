@@ -6,37 +6,26 @@ var config = {
   development: {
     root: rootPath,
     app: {
-      name: 'a'
+      name: 'gps'
     },
     port: 3000,
-    db: 'mongodb://localhost/gps',
-    rrdpath: '/var/lib/collectd/rrd',
-    hostname: 'gps.gps.ebrecloud.com'
-
+    db: 'mongodb://localhost/gps'
   },
-
   test: {
     root: rootPath,
     app: {
       name: 'a'
     },
     port: 3000,
-    db: 'mongodb://localhost/gps',
-    rrdpath: '/var/lib/collectd/rrd',
-    hostname: 'gps.gps.ebrecloud.com'
-
+    db: 'mongodb://localhost/gps'
   },
-
   production: {
     root: rootPath,
     app: {
       name: 'a'
     },
     port: 3000,
-    db: 'mongodb://localhost/gps',
-    rrdpath: '/var/lib/collectd/rrd',
-    hostname: 'gps.gps.ebrecloud.com'
-
+    db: 'mongodb://localhost/gps'
   }
 };
 
