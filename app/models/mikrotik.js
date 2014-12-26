@@ -297,7 +297,9 @@ var runBandWidthTest = function(link, n1, n2, direction, chan, conn) {
 
       setTimeout(function() {
         var chan=conn.openChannel();
-        chan.write('/cancel');
+        chan.write('/cancel', function() {
+		chan.close();
+	});
       }, duration * 1000);
 
       chan.on('done', function(data) {
@@ -316,9 +318,13 @@ var runBandWidthTest = function(link, n1, n2, direction, chan, conn) {
 var bandwidthTest = function(link, n1, n2) {
     var df = Q.defer();
 
-
     var connection = new api(n1.mainip, n1.username, n1.password, { tls: apissl, timeout: 60 });
     connection.connect(function(conn) {
+	if (!conn) {
+		df.reject('Can\'t stablish API connection to ' + n1.mainip);
+		return;
+	}
+
         var chan=conn.openChannel();
         runBandWidthTest(link, n1, n2, 'transmit', chan, conn).then(function(tx) {
             runBandWidthTest(link, n1, n2, 'receive', chan, conn).then(function(rx) {
