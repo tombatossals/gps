@@ -13,6 +13,7 @@ var getInterval = function() {
 var config = {
     development: {
         interval: getInterval(),
+        bandwidthTestDuration: 20,
         collectd: {
             snmp: "/etc/collectd.d/snmp.conf",
             ping: "/etc/collectd.d/ping.conf"
@@ -21,6 +22,7 @@ var config = {
 
     test: {
         interval: getInterval(),
+        bandwidthTestDuration: 20,
         collectd: {
             snmp: "/etc/collectd.d/snmp.conf",
             ping: "/etc/collectd.d/ping.conf"
@@ -29,6 +31,7 @@ var config = {
 
     production: {
         interval: getInterval(),
+        bandwidthTestDuration: 20,
         collectd: {
             snmp: "/etc/collectd.d/snmp.conf",
             ping: "/etc/collectd.d/ping.conf"

@@ -20,29 +20,20 @@ var bandwidthTest = function(linkId) {
         nodeModel.getNodesByName([ n1, n2 ]).then(function(nodes) {
             var n1 = nodes[0];
             var n2 = nodes[1];
+            var bandwidthTest = mikrotik.bandwidthTest;
 
-            if (n1.system === 'openwrt') {
-                openwrt.bandwidthTest(link, n1, n2).then(function(result) {
-                    deferred.resolve(result);
-                }).fail(function(result) {
-                    badLinks.push(link);
-                    deferred.reject(result);
-                });
-            } else if (n2.system === 'openwrt') {
-                openwrt.bandwidthTest(link, n2, n1).then(function(result) {
-                    deferred.resolve(result);
-                }).fail(function(result) {
-                    badLinks.push(link);
-                    deferred.reject(result);
-                });
-            } else {
-                mikrotik.bandwidthTest(link, n1, n2).then(function(result) {
-                    deferred.resolve(result);
-                }).fail(function(result) {
-                    badLinks.push(link);
-                    deferred.reject(result);
-                });
+            if (n2.system === 'openwrt') {
+                n1 = nodes[1];
+                n2 = nodes[0];
+                bandwidth = openwrt.bandwidthTest;
             }
+
+            bandwidthTest(link, n1, n2).then(function(result) {
+                deferred.resolve(result);
+            }).fail(function(result) {
+                badLinks.push(link);
+                deferred.reject(result);
+            });
         });
     });
     return deferred.promise;

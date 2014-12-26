@@ -1,12 +1,12 @@
 'use strict';
 
 var apissl = require('../../config/gps').apissl || false;
-var api = require('mikronode'),
-    util = require('util'),
-    sshConn  = require('ssh2'),
-    Netmask  = require('netmask').Netmask,
-    INTERVAL = require('../../config/gps').interval,
-    Q = require('q');
+var api = require('mikronode');
+var util = require('util');
+var Netmask  = require('netmask').Netmask;
+var interval = require('../../config/gps').interval;
+var duration = require('../../config/gps').bandwidthTestDuration;
+var Q = require('q');
 
 var getTestingIp = function(link, node) {
     var testingIp, ifaceName;
@@ -275,66 +275,62 @@ var traceroute = function(ip, username, password, remoteip) {
     return deferred.promise.timeout(60000);
 };
 
-var bandwidthTest = function(link, n1, n2) {
-    var deferred = Q.defer();
-
-    var c = new sshConn();
-    var ip = n1.mainip;
-    var sshPort = n1.sshPort || 22;
-    var username = n1.username;
-    var password = n1.password;
-    var username2 = n2.username;
-    var password2 = n2.password;
-    var interval = 5;
-    var duration = 19;
-    //var duration = 5;
+var runBandWidthTest = function(link, n1, n2, direction, chan, conn) {
+    var df = Q.defer();
+    var username = n2.username;
+    var password = n2.password;
     var proto = 'udp';
     var testip = getTestingIp(link, n2);
-
-    if (!testip) {
-        deferred.reject('Not found IP from ' + n1.name + ' ' + n2.name);
-        return deferred.promise;
+    var bandwidth = [];
+    var current = {
+        transmit: 'tx-current',
+        receive: 'rx-current'
     }
 
-    c.on('ready', function() {
-        c.exec(util.format(':global ip; :global username; :global password; :global interval; :global duration; :global proto; :set ip %s; :set username %s; :set password %s; :set interval %s; :set duration %s; :set proto %s; /system script run bandwidth', testip, username2, password2, interval, duration, proto), function(err, stream) {
-            if (err) {
-                deferred.reject(util.format('Error on bandwidth from %s to %s.', ip, testip));
-            } else {
-                stream.on('data', function(data) {
-                    data = data.toString().trim();
-                    if (data.search('tx:') !== -1) {
-                        var tx = 0, rx = 0;
-                        tx = data.split(' ')[0].replace('tx:', '');
-                        rx = data.split(' ')[1].replace('rx:', '');
-                        if (!isNaN(tx) && !isNaN(rx) && tx > 0 && rx > 0) {
-                            console.log(util.format('PUTVAL "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, INTERVAL, tx, rx));
-                            deferred.resolve(util.format('PUTVAL %s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, INTERVAL, tx, rx));
-                        } else {
-                            deferred.reject(util.format('ERROR "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, INTERVAL, tx, rx));
-                        }
-                    }
-                });
+    chan.write(['/tool/bandwidth-test', '=address=' + testip, '=user=' + username, '=password=' + password, '=protocol=' + proto, '=direction=' + direction, 'duration=' + duration + 's' ], function(data) {
+      chan.on('data', function(data) {
+          var parsed = api.parseItems(data);
+          if (parsed[0][current[direction]] > 0) {
+              bandwidth.push(parseInt(parsed[0][current[direction]]));
+          }
+      });
 
-                stream.on('exit', function() {
-                    c.end();
-                });
-            }
+      setTimeout(function() {
+        var chan=conn.openChannel();
+        chan.write('/cancel');
+      }, duration * 1000);
+
+      chan.on('done', function(data) {
+          var avg = 0;
+          if (bandwidth.length) {
+              var sum = bandwidth.reduce(function(a, b) { return a + b });
+              avg = sum / bandwidth.length;
+          }
+          df.resolve(parseInt(avg));
+      });
+    });
+
+    return df.promise;
+};
+
+var bandwidthTest = function(link, n1, n2) {
+    var df = Q.defer();
+
+
+    var connection = new api(n1.mainip, n1.username, n1.password, { tls: apissl, timeout: 60 });
+    connection.connect(function(conn) {
+        var chan=conn.openChannel();
+        runBandWidthTest(link, n1, n2, 'transmit', chan, conn).then(function(tx) {
+            runBandWidthTest(link, n1, n2, 'receive', chan, conn).then(function(rx) {
+                chan.close();
+                conn.close();
+                console.log(util.format('PUTVAL "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, interval, tx, rx));
+                df.resolve('Successfully executed bandwidth test from ' + n1.name + ' to ' + n2.name);
+            });
         });
     });
 
-    c.on('error', function(err) {
-        deferred.reject(util.format('ERROR: ' + n1.name + '-' + n2.name + ' Error connecting %s %s', ip, err));
-    });
-
-    c.connect({
-        host: ip,
-        port: sshPort,
-        username: username,
-        password: password || '-'
-    });
-
-    return deferred.promise.timeout(60000);
+    return df.promise;
 };
 
 module.exports = {
