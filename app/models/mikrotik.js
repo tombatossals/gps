@@ -285,22 +285,15 @@ var runBandWidthTest = function(link, n1, n2, direction, chan, conn) {
     var current = {
         transmit: 'tx-current',
         receive: 'rx-current'
-    }
+    };
 
-    chan.write(['/tool/bandwidth-test', '=address=' + testip, '=user=' + username, '=password=' + password, '=protocol=' + proto, '=direction=' + direction, 'duration=' + duration + 's' ], function(data) {
+    chan.write(['/tool/bandwidth-test', '=address=' + testip, '=user=' + username, '=password=' + password, '=protocol=' + proto, '=direction=' + direction, '=duration=' + duration], function(data) {
       chan.on('data', function(data) {
           var parsed = api.parseItems(data);
           if (parsed[0][current[direction]] > 0) {
               bandwidth.push(parseInt(parsed[0][current[direction]]));
           }
       });
-
-      setTimeout(function() {
-        var chan=conn.openChannel();
-        chan.write('/cancel', function() {
-		chan.close();
-	});
-      }, duration * 1000);
 
       chan.on('done', function(data) {
           var avg = 0;
