@@ -199,14 +199,12 @@ var addLink = function(nodes) {
     var deferred = Q.defer();
 
     getLinkByNodes(nodes).then(function(link) {
-        if (link) {
-            deferred.reject(util.format('The link %s-%s already exists', nodes[0].name, nodes[1].name));
-        } else {
-            var newLink = new Link({ nodes: [ { name: nodes[0].name, id: nodes[0].id }, { name: nodes[1].name, id: nodes[1].id } ] });
-            newLink.save(function() {
-                deferred.resolve(newLink);
-            });
-        }
+        deferred.reject(util.format('The link %s-%s already exists', nodes[0].name, nodes[1].name));
+    }).fail(function() {
+        var newLink = new Link({ nodes: [ { name: nodes[0].name, id: nodes[0].id }, { name: nodes[1].name, id: nodes[1].id } ] });
+        newLink.save(function() {
+            deferred.resolve(newLink);
+        });
     });
 
     return deferred.promise;
