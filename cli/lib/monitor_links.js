@@ -113,8 +113,8 @@ var execute = function(nodes) {
             var query =  { active: true, 'nodes.id': { '$all': nodesIds } };
             linkModel.getLinks(query).then(function(links) {
                 startMonitoring(links).then(function(result) {
-                    startMonitoring(badLinks).then(function(result2) {
-                        deferred.resolve(result.concat(result2));
+                    startMonitoring(badLinks).then(function(result) {
+                        deferred.resolve(result.concat(result));
                     });
                 });
             }).fail(function(error) {
