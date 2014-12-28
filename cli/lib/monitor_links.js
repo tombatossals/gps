@@ -8,7 +8,6 @@ var util      = require('util');
 var sshConn   = require('ssh2');
 var mikrotik  = require('../../app/models/mikrotik');
 var openwrt   = require('../../app/models/openwrt');
-var badLinks = [];
 
 var startBandwidthTest = function(linkId) {
     var deferred = Q.defer();
@@ -31,8 +30,7 @@ var startBandwidthTest = function(linkId) {
             bandwidthTest(link, n1, n2).then(function(result) {
                 deferred.resolve(result);
             }).fail(function(result) {
-                badLinks.push(link);
-                deferred.reject(result);
+                deferred.reject(link);
             });
         });
     });
@@ -88,7 +86,7 @@ var startMonitoring = function(links) {
         return previous.then(function(results) {
             globalResults = globalResults.concat(results);
             return monitorGroupOfLinks(group, results);
-        });
+        }).delay(10000);
     }, Q([]));
 
     processGroups.then(function(results) {
@@ -112,31 +110,17 @@ var execute = function(nodes) {
 
             var query =  { active: true, 'nodes.id': { '$all': nodesIds } };
             linkModel.getLinks(query).then(function(links) {
-                startMonitoring(links).then(function(result) {
-                    startMonitoring(badLinks).then(function(result2) {
-                        deferred.resolve(result.concat(result2));
-                    });
+    		startMonitoring(links).then(function(results) {
+                    deferred.resolve(results);
                 });
-            }).fail(function(error) {
-                deferred.resolve([{
-                    state: 'rejected',
-                    reason: error
-                }]);
             });
         });
     } else {
         var query = { active: true };
         linkModel.getLinks(query).then(function(links) {
-            startMonitoring(links).then(function(result) {
-                startMonitoring(badLinks).then(function(result2) {
-                    deferred.resolve(result.concat(result2));
+    		startMonitoring(links).then(function(results) {
+                    deferred.resolve(results);
                 });
-            });
-        }).fail(function(error) {
-            deferred.resolve([{
-                state: 'rejected',
-                reason: error
-            }]);
         });
     }
 

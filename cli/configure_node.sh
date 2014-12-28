@@ -2,8 +2,8 @@
 
 #Necesita: sshpass
 
-instalat=$(dpkg-query -l | grep sshpass | wc -l)
-if [ "$instalat" = "0"  ]; then
+instalat=$(which sshpass)
+if [ "$?" != "0"  ]; then
 	echo  "Error: es requereix tenir instal·lat sshpass"
 	echo "El podeu instal·lar amb: sudo apt-get install sshpass"
 	exit
