@@ -10,7 +10,7 @@ var mikrotik  = require('../../app/models/mikrotik');
 var openwrt   = require('../../app/models/openwrt');
 var badLinks = [];
 
-var bandwidthTest = function(linkId) {
+var startBandwidthTest = function(linkId) {
     var deferred = Q.defer();
 
     linkModel.getLinksById([linkId]).then(function(links) {
@@ -46,7 +46,7 @@ var monitorGroupOfLinks = function(group, results) {
     var deferred = Q.defer();
     var promises = [];
     group.forEach(function(linkId) {
-        promises.push(bandwidthTest(linkId));
+        promises.push(startBandwidthTest(linkId));
     });
 
     Q.allSettled(promises).then(function(results) {
@@ -113,8 +113,8 @@ var execute = function(nodes) {
             var query =  { active: true, 'nodes.id': { '$all': nodesIds } };
             linkModel.getLinks(query).then(function(links) {
                 startMonitoring(links).then(function(result) {
-                    startMonitoring(badLinks).then(function(result) {
-                        deferred.resolve(result.concat(result));
+                    startMonitoring(badLinks).then(function(result2) {
+                        deferred.resolve(result.concat(result2));
                     });
                 });
             }).fail(function(error) {
