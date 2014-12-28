@@ -49,9 +49,7 @@ var getConnectedUsers = function(node) {
     });
 
     connection.connect(function(conn) {
-        conn.closeOnDone(true);
         var chan=conn.openChannel();
-        chan.closeOnDone(true);
         chan.write('/interface/wireless/registration-table/print',function() {
             chan.on('done',function(data) {
                 var users = { good: 0, bad: 0 };
@@ -88,9 +86,7 @@ var getips = function(node) {
     });
 
     connection.connect(function(conn) {
-        conn.closeOnDone(true);
         var chan=conn.openChannel();
-        chan.closeOnDone(true);
 
         chan.write('/ip/address/print',function() {
             chan.on('done',function(data) {
@@ -305,7 +301,7 @@ var runBandWidthTest = function(link, n1, n2, direction, chan, conn) {
       });
     });
 
-    return df.promise;
+    return df.promise.timeout(60000);
 };
 
 var bandwidthTest = function(link, n1, n2) {
@@ -314,19 +310,27 @@ var bandwidthTest = function(link, n1, n2) {
     var connection = new api(n1.mainip, n1.username, n1.password, { tls: apissl, timeout: 60 });
     connection.connect(function(conn) {
 	if (!conn) {
-		df.reject('Can\'t stablish API connection to ' + n1.mainip);
+		df.reject();
 		return;
 	}
 
         var chan=conn.openChannel();
         runBandWidthTest(link, n1, n2, 'transmit', chan, conn).then(function(tx) {
             runBandWidthTest(link, n1, n2, 'receive', chan, conn).then(function(rx) {
-                chan.close();
-                conn.close();
+		chan.close();
+		conn.close();
                 console.log(util.format('PUTVAL "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, interval, tx, rx));
                 df.resolve('Successfully executed bandwidth test from ' + n1.name + ' to ' + n2.name);
-            });
-        });
+            }).fail(function() {
+		chan.close();
+		conn.close();
+		df.reject();
+	    });
+        }).fail(function() {
+		chan.close();
+		conn.close();
+		df.reject();
+	});
     });
 
     return df.promise;
