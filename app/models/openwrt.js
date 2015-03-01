@@ -142,7 +142,11 @@ var traceroute = function(ip, username, password, remoteip, callback) {
 
 };
 
-var getOSPFInstanceInfo = function(ip, username, password) {
+var getOSPFInstanceInfo = function(node) {
+
+    var ip = node.mainip;
+    var username = node.username;
+    var password = node.password;
 
     var deferred = Q.defer(),
         c = new sshConn();
@@ -184,8 +188,11 @@ var getOSPFInstanceInfo = function(ip, username, password) {
     return deferred.promise.timeout(60000);
 };
 
-var getNeighborInfo = function(ip, username, password) {
+var getNeighborInfo = function(node) {
 
+    var ip = node.mainip;
+    var username = node.username;
+    var password = node.password;
     var deferred = Q.defer(),
         c = new sshConn();
 
@@ -320,7 +327,12 @@ var bandwidthTest = function(link, n1, n2) {
                 rx = parseInt(rx, 10) * 1024 * 1024;
                 if (!isNaN(tx) && !isNaN(rx) && tx > 0 && rx > 0) {
                     console.log(util.format('PUTVAL "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, INTERVAL, tx, rx));
-                    deferred.resolve(util.format('PUTVAL "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, INTERVAL, tx, rx));
+                    deferred.resolve({
+			n1: n1,
+			n2: n2,
+			tx: tx,
+			rx: rx
+		    });
                 } else {
                     deferred.reject(util.format('ERROR "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, INTERVAL, tx, rx));
                 }

@@ -15,7 +15,7 @@ function execute(nodes) {
         linkModel.getLinksByNodeName(nodeName).then(function(links) {
             var promises = [];
             links.forEach(function(link) {
-                promises.push(updateLink(link));
+                promises.push(linkModel.updateLink(link));
             });
             Q.allSettled(promises).then(function(results) {
                 deferred.resolve(results);
@@ -27,7 +27,7 @@ function execute(nodes) {
                 linkModel.updateLink(link).then(function(msg) {
                     deferred.resolve([{
                         state: 'fullfiled',
-                        value: msg
+			value: msg
                     }]);
                 });
             }).fail(function(error) {

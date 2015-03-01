@@ -5,6 +5,6 @@
 /certificate add name=gps-server-template common-name=gps-server
 /certificate sign gps-ca-template
 /certificate sign gps-server-template ca=gps-ca
-
 /ip service enable api-ssl
 /ip service set api-ssl certificate=gps-server-template
+

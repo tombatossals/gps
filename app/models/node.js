@@ -134,7 +134,7 @@ var updateNode = function(node) {
 
     getips(node).then(function(node) {
         node.save(function() {
-            deferred.resolve('Successfully fetched interfaces from ' + node.name);
+            deferred.resolve();
         });
     }).fail(function() {
         deferred.reject('Error fetching interfaces from ' + node.name);

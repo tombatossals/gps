@@ -21,14 +21,16 @@ var startBandwidthTest = function(linkId) {
             var n2 = nodes[1];
             var bandwidthTest = mikrotik.bandwidthTest;
 
-            if (n2.system === 'openwrt') {
+            if (n1.system === 'openwrt') {
+                bandwidthTest = openwrt.bandwidthTest;
+            } else if (n2.system === 'openwrt') {
                 n1 = nodes[1];
                 n2 = nodes[0];
-                bandwidth = openwrt.bandwidthTest;
+                bandwidthTest = openwrt.bandwidthTest;
             }
 
             bandwidthTest(link, n1, n2).then(function(result) {
-                deferred.resolve(result);
+            	deferred.resolve();
             }).fail(function(result) {
                 deferred.reject(link);
             });

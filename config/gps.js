@@ -13,29 +13,59 @@ var getInterval = function() {
 var config = {
     development: {
         interval: getInterval(),
-        bandwidthTestDuration: 20,
+	bandwidthTestDuration: 20,
         collectd: {
             snmp: "/etc/collectd.d/snmp.conf",
             ping: "/etc/collectd.d/ping.conf"
-        }
+        },
+        influx: {
+            host: 'localhost',
+            port: 8086,
+            username: 'gps',
+            password: 'guifi',
+            database: 'gps'
+        },
+    	rrdpath: '/var/lib/collectd',
+    	hostname: 'gps',
+	apissl: true
     },
 
     test: {
         interval: getInterval(),
-        bandwidthTestDuration: 20,
+	bandwidthTestDuration: 20,
         collectd: {
             snmp: "/etc/collectd.d/snmp.conf",
             ping: "/etc/collectd.d/ping.conf"
-        }
+        },
+        influx: {
+            host: 'localhost',
+            port: 8086,
+            username: 'gps',
+            password: 'guifi',
+            database: 'gps'
+        },
+    	rrdpath: '/var/lib/collectd',
+    	hostname: 'gps',
+	apissl: true
     },
 
     production: {
         interval: getInterval(),
-        bandwidthTestDuration: 20,
+	bandwidthTestDuration: 20,
         collectd: {
             snmp: "/etc/collectd.d/snmp.conf",
             ping: "/etc/collectd.d/ping.conf"
-        }
+        },
+        influx: {
+            host: 'localhost',
+            port: 8086,
+            username: 'gps',
+            password: 'guifi',
+            database: 'gps'
+        },
+    	rrdpath: '/var/lib/collectd',
+    	hostname: 'gps',
+	apissl: true
     }
 };
 

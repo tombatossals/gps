@@ -12,42 +12,16 @@ var getRoutingInfo = function getRoutingInfo(node) {
     var deferred = Q.defer();
 
     if (node.system === 'mikrotik') {
-        mikrotik.getRouterboardInfo(node).then(function(routerboard) {
-            mikrotik.getResourceInfo(node).then(function(resource) {
-                node.sysinfo = {
-                    version: resource.version,
-                    uptime: resource.uptime,
-                    model: resource['board-name'],
-                    firmware: routerboard['current-firmware']
-                };
-
-		if (resource['board-name'].search("Omnitik") !== -1 && node.omnitik === false) {
-			node.omnitik = true;
-		}
-
-                node.save(function() {
-                    deferred.resolve();
-                });
-            });
-
-        }).fail(function(err) {
-            deferred.reject(err);
-        });
-    } else {
-        openwrt.getOpenWRTSystemInfo(node.mainip, node.username, node.password).then(function(sysinfo) {
-            node.sysinfo = {
-                version: sysinfo.version,
-                uptime: sysinfo.uptime,
-                model: sysinfo['board-name'],
-                firmware: sysinfo['current-firmware']
-            };
-
+        mikrotik.getRoutingTable(node, true).then(function(routing) {
+            node.routing = routing;
             node.save(function() {
                 deferred.resolve();
             });
         }).fail(function(err) {
             deferred.reject(err);
         });
+    } else {
+        deferred.resolve();
     }
 
     return deferred.promise;

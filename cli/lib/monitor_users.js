@@ -16,7 +16,7 @@ function monitorOmnitikUsers(node) {
             }
             node.save(function() {
                 console.log(util.format('PUTVAL "%s/node/connected_users" interval=%s N:%s:%s', node.name, INTERVAL, users.good, users.bad));
-                deferred.resolve(util.format('PUTVAL "%s/node/connected_users" interval=%s N:%s:%s', node.name, INTERVAL, users.good, users.bad));
+                deferred.resolve();
             });
         } else {
             deferred.resolve(util.format('Can\'t read wireless connected users on %s', node.name));

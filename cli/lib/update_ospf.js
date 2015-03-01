@@ -22,7 +22,7 @@ var getLinkInformation = function(neighbor, node) {
         };
         link.nodes = nodes;
         link.save(function() {
-            df.resolve(util.format('Successfully saved link ospf information on %s-%s', nodes[0].name, nodes[1].name));
+            df.resolve();
         });
     }).fail(function(err) {
         df.resolve(util.format('Link not found: %s-%s', node.mainip, neighbor.address));
@@ -43,7 +43,7 @@ var getOSPFInfo = function getOSPFInfo(node) {
         getOSPFInstanceInfo = openwrt.getOSPFInstanceInfo;
     }
 
-    getNeighborInfo(node.mainip, node.username, node.password).then(function(neighbors) {
+    getNeighborInfo(node).then(function(neighbors) {
         var first = neighbors.shift();
 	var results = [];
 
@@ -52,19 +52,19 @@ var getOSPFInfo = function getOSPFInfo(node) {
         }, getLinkInformation(first, node));
 
         promises.then(function(result) {
-            getOSPFInstanceInfo(node.mainip, node.username, node.password).then(function(instance) {
+            getOSPFInstanceInfo(node).then(function(instance) {
                 node.ospf = {
                     routerId: instance['router-id'],
                     dijkstras: instance.dijkstras,
                     state: instance.state
                 };
                 node.save(function(err) {
-                    deferred.resolve('Successfully saved node ospf information on ' + node.name);
+                    deferred.resolve();
                 });
             });
         });
     }).fail(function(err) {
-        deferred.reject(err);
+        deferred.resolve(err);
     });
 
     return deferred.promise;
@@ -89,7 +89,7 @@ var execute = function execute(nodes) {
                     value: result 
                 });
                 return getOSPFInfo(node);
-            });
+	    });	
         }, getOSPFInfo(first));
 
         promises.then(function(result) {

@@ -5,7 +5,7 @@ var dburl = require('../config/config').db;
 var mongoose = require('mongoose');
 var yargs = require("yargs");
 var path = require('path');
-var howtouse = "Usage: $0 <-l level> [ping [nodes]|discover [links]|generate [collectd_snmp|collectd_ping]|monitor [links|users|path]|update [interfaces|links|bandwidth|routing|sysinfo|ospf]|add [node|link] <file.json>]";
+var howtouse = "Usage: $0 <-l level> [print routing]|[ping [nodes]|discover [links]|generate [collectd_snmp|collectd_ping]|monitor [links|users|path]|update [interfaces|links|bandwidth|routing|sysinfo|ospf]|add [node|link] <file.json>]";
 
 var options = {
     basedir: path.join(__dirname, 'config')
@@ -16,6 +16,7 @@ var check_parameters = function(argv) {
         generate: [ "collectd_snmp", "collectd_ping", "collectd_routeros" ],
         monitor: [ "links", "users", "path" ],
         discover: [ "links" ],
+        print: [ "routing" ],
         update: [ "interfaces", "links", "bandwidth", "routing", "sysinfo", "ospf" ],
         add: [ "node", "link" ],
         ping: [ "nodes" ]
@@ -56,7 +57,7 @@ action.execute(optional).then(function(results) {
         var res = results[i];
         if (res.state === 'rejected') {
             logger.warn(res.reason);
-        } else {
+        } else if (res.value !== undefined) {
             logger.debug(res.value);
         }
     }
@@ -67,4 +68,8 @@ action.execute(optional).then(function(results) {
     setTimeout(function() {
         process.exit(-1);
     }, 3000);
+});
+
+process.on('uncaughtException', function (err) {
+  console.error(err.stack);
 });

@@ -97,7 +97,7 @@ function updateBandwidthLink(link) {
         }
 
         link.save(function() {
-            deferred.resolve(util.format('Updated bandwidth %s-%s: saturation %s, bandwidth %s', link.nodes[0].name, link.nodes[1].name, saturation, bandwidth));
+            deferred.resolve();
         });
     }).fail(function(result) {
         deferred.reject(result);

@@ -15,7 +15,7 @@ var getRoutingInfo = function getRoutingInfo(node) {
         mikrotik.getRoutingTable(node).then(function(routing) {
             node.routing = routing;
             node.save(function() {
-                deferred.resolve('Successfully saved routing information for ' + node.name);
+                deferred.resolve();
             });
         }).fail(function(err) {
             deferred.reject(err);

@@ -234,7 +234,7 @@ var update = function(link, n1, n2, ifaces) {
         longitude: n2.latlng.lng
     });
     link.save(function() {
-        deferred.resolve(util.format('Supernode link updated: %s-%s', n1.name, n2.name));
+        deferred.resolve();
         return;
     });
 
@@ -269,7 +269,7 @@ var updateLink = function(link) {
 
         if (ifaces.network) {
             update(link, n1, n2, ifaces).then(function() {
-                deferred.resolve(util.format('Supernode link updated: %s-%s', n1.name, n2.name));
+                deferred.resolve();
             });
         } else {
             deferred.reject(util.format('Removed link not found: %s-%s', n1.name, n2.name));

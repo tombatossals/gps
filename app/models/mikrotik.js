@@ -43,7 +43,13 @@ var getConnectedUsers = function(node) {
         ip = node.omnitikip;
     }
 
-    var connection = new api(ip, username, password, { tls: apissl });
+    var tls = apissl;
+
+    if (node.apissl !== undefined) {
+	tls = node.apissl;
+    }
+
+    var connection = new api(ip, username, password, { tls: tls });
     connection.on('error', function(err) {
         deferred.reject(util.format('FATAL: Can\'t connect to the API: %s %s %s', ip, username, password));
     });
@@ -75,12 +81,14 @@ var getConnectedUsers = function(node) {
 var getips = function(node) {
     var deferred = Q.defer();
 
+    var ip = node.mainip;
+    var tls = apissl;
+
     if (node.apissl !== undefined) {
-        apissl = node.apissl;
+	tls = node.apissl;
     }
 
-    var ip = node.mainip;
-    var connection = new api(ip, node.username, node.password, { tls: apissl });
+    var connection = new api(ip, node.username, node.password, { tls: tls || apissl });
     connection.on('error', function(err) {
         deferred.reject(node);
     });
@@ -106,13 +114,22 @@ var getips = function(node) {
     return deferred.promise.timeout(60000);
 };
 
-var getNeighborInfo = function(ip, username, password) {
+var getNeighborInfo = function(node) {
 
+    var ip = node.mainip;
+    var username = node.username;
+    var password = node.password;
     var deferred = Q.defer();
-    var connection = new api(ip, username, password, { tls: apissl });
+    var tls = apissl;
+
+    if (node.apissl !== undefined) {
+	tls = node.apissl;
+    }
+
+    var connection = new api(ip, username, password, { tls: tls });
 
     connection.on('error', function(err) {
-        deferred.reject('Error on getting routeros version:' + err);
+        deferred.reject('Error on getting routeros version from ' + node.name + ', ' + err);
     });
 
     connection.connect(function(conn) {
@@ -130,13 +147,21 @@ var getNeighborInfo = function(ip, username, password) {
     return deferred.promise.timeout(10000);
 };
 
-var getOSPFInstanceInfo = function(ip, username, password) {
+var getOSPFInstanceInfo = function(node) {
+    var ip = node.mainip;
+    var username = node.username;
+    var password = node.password;
+    var tls = apissl;
+
+    if (node.apissl !== undefined) {
+	tls = node.apissl;
+    }
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password, { tls: apissl });
+        connection = new api(ip, username, password, { tls: tls });
 
     connection.on('error', function(err) {
-        deferred.reject('Error on getting routeros version:' + err);
+        deferred.reject('Error on getting routeros version from ' + node.name + ', ' + err);
     });
 
     connection.connect(function(conn) {
@@ -154,13 +179,21 @@ var getOSPFInstanceInfo = function(ip, username, password) {
     return deferred.promise.timeout(10000);
 };
 
-var getResourceInfo = function(ip, username, password) {
+var getResourceInfo = function(node) {
+    var ip = node.mainip;
+    var username = node.username;
+    var password = node.password;
+    var tls = apissl;
+
+    if (node.apissl !== undefined) {
+	tls = node.apissl;
+    }
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password, { tls: apissl });
+        connection = new api(ip, username, password, { tls: tls });
 
     connection.on('error', function(err) {
-        deferred.reject('Error on getting routeros version:' + err);
+        deferred.reject('Error on getting routeros version from ' + node.name + ', ' + err);
     });
 
     connection.connect(function(conn) {
@@ -178,13 +211,21 @@ var getResourceInfo = function(ip, username, password) {
     return deferred.promise.timeout(10000);
 };
 
-var getRouterboardInfo = function(ip, username, password) {
+var getRouterboardInfo = function(node) {
+    var ip = node.mainip;
+    var username = node.username;
+    var password = node.password;
+    var tls = apissl;
+
+    if (node.apissl !== undefined) {
+	tls = node.apissl;
+    }
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password, { tls: apissl });
+        connection = new api(ip, username, password, { tls: tls });
 
     connection.on('error', function(err) {
-        deferred.reject('Error on getting routeros version:' + err);
+        deferred.reject('Error on getting routeros version from ' + node.name + ', ' + err);
     });
 
     connection.connect(function(conn) {
@@ -202,21 +243,27 @@ var getRouterboardInfo = function(ip, username, password) {
     return deferred.promise.timeout(10000);
 };
 
-var getRoutingTable = function(node) {
+var getRoutingTable = function(node, print) {
 
     var deferred = Q.defer();
     var ip = node.mainip;
     var username = node.username;
     var password = node.password;
-    var connection = new api(ip, username, password, { tls: apissl });
+    var tls = apissl;
+
+    if (node.apissl !== undefined) {
+	tls = node.apissl;
+    }
+
+    var connection = new api(ip, username, password, { tls: tls });
 
     connection.on('error', function(err) {
-        deferred.reject('Error on getting routing table:' + err);
+        deferred.reject('Error on getting routing table from ' + node.name + ', ' + err);
     });
 
     connection.connect(function(conn) {
         var chan=conn.openChannel();
-        chan.write([ '/ip/route/print', '=.proplist=.id,active' ], function() {
+        chan.write([ '/ip/route/print', '=.proplist=.id,active,dst-address,gateway,distance' ], function() {
             chan.on('done', function(data) {
                 var parsed = api.parseItems(data);
                 var routing = {
@@ -225,6 +272,9 @@ var getRoutingTable = function(node) {
                     inactive: 0
                 };
                 for (var i in parsed) {
+		    if (print) {
+			console.log(util.format("%s - %s - %s - %s - %s", node.name, parsed[i]['dst-address'], parsed[i].active, parsed[i].gateway, parsed[i].distance));
+		    }
                     routing.total +=1;
                     if (parsed[i].active === 'true') {
                         routing.active +=1;
@@ -240,10 +290,19 @@ var getRoutingTable = function(node) {
     return deferred.promise.timeout(60000);
 };
 
-var traceroute = function(ip, username, password, remoteip) {
+var traceroute = function(node, remoteip) {
+
+    var ip = node.mainip;
+    var username = node.username;
+    var password = node.password;
+    var tls = apissl;
+
+    if (node.apissl !== undefined) {
+	tls = node.apissl;
+    }
 
     var deferred = Q.defer(),
-        connection = new api(ip, username, password, { tls: apissl });
+        connection = new api(ip, username, password, { tls: tls });
 
     connection.on('error', function(err) {
         deferred.reject('Error on traceroute:' + err);
@@ -306,8 +365,16 @@ var runBandWidthTest = function(link, n1, n2, direction, chan, conn) {
 
 var bandwidthTest = function(link, n1, n2) {
     var df = Q.defer();
+    var tls = apissl;
 
-    var connection = new api(n1.mainip, n1.username, n1.password, { tls: apissl, timeout: 60 });
+    if (n1.apissl !== undefined) {
+	tls = n1.apissl;
+    }
+
+    var connection = new api(n1.mainip, n1.username, n1.password, { tls: tls, timeout: 60 });
+    connection.on('error', function(err) {
+        df.reject(util.format('FATAL: Can\'t connect to the API: %s %s', n1.name, n1.mainip));
+    });
     connection.connect(function(conn) {
 	if (!conn) {
 		df.reject();
@@ -320,7 +387,12 @@ var bandwidthTest = function(link, n1, n2) {
 		chan.close();
 		conn.close();
                 console.log(util.format('PUTVAL "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, interval, tx, rx));
-                df.resolve('Successfully executed bandwidth test from ' + n1.name + ' to ' + n2.name);
+                df.resolve({
+			n1: n1,
+			n2: n2,
+			tx: tx,
+			rx: rx
+		});
             }).fail(function() {
 		chan.close();
 		conn.close();
