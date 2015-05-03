@@ -1,11 +1,11 @@
 {
-    "name": "simago",
+    "name": "catalans",
     "system": "mikrotik",
-    "mainip": "10.90.86.65",
-    "username": "guest",
-    "password": "",
+    "mainip": "10.90.80.72",
+    "username": "gps",
+    "password": "guifirulez",
     "latlng": {
-        "lat": "39.985825",
-        "lng": "-0.036241"
+        "lat": "39.939374",
+        "lng": "-0.004499"
     }
 }
