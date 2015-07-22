@@ -1,3 +1,5 @@
+'use strict';
+
 var path = require('path'),
     rootPath = path.normalize(__dirname + '/..'),
     env = process.env.NODE_ENV || 'development';
@@ -15,8 +17,8 @@ var config = {
         interval: getInterval(),
 	bandwidthTestDuration: 20,
         collectd: {
-            snmp: "/etc/collectd.d/snmp.conf",
-            ping: "/etc/collectd.d/ping.conf"
+            snmp: '/etc/collectd.d/snmp.conf',
+            ping: '/etc/collectd.d/ping.conf'
         },
         influx: {
             host: 'localhost',
@@ -34,8 +36,8 @@ var config = {
         interval: getInterval(),
 	bandwidthTestDuration: 20,
         collectd: {
-            snmp: "/etc/collectd.d/snmp.conf",
-            ping: "/etc/collectd.d/ping.conf"
+            snmp: '/etc/collectd.d/snmp.conf',
+            ping: '/etc/collectd.d/ping.conf'
         },
         influx: {
             host: 'localhost',
@@ -53,8 +55,8 @@ var config = {
         interval: getInterval(),
 	bandwidthTestDuration: 20,
         collectd: {
-            snmp: "/etc/collectd.d/snmp.conf",
-            ping: "/etc/collectd.d/ping.conf"
+            snmp: '/etc/collectd.d/snmp.conf',
+            ping: '/etc/collectd.d/ping.conf'
         },
         influx: {
             host: 'localhost',
