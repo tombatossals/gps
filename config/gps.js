@@ -19,7 +19,8 @@ var config = {
         collectd: {
             snmp: '/etc/collectd.d/snmp.conf',
             ping: '/etc/collectd.d/ping.conf',
-            ping_device: 'ens8'
+            ping_device: 'ens8',
+            ping_srcaddress: '10.228.130.165'
         },
         influx: {
             host: 'localhost',
@@ -39,7 +40,8 @@ var config = {
         collectd: {
             snmp: '/etc/collectd.d/snmp.conf',
             ping: '/etc/collectd.d/ping.conf',
-            ping_device: 'ens8'
+            ping_device: 'ens8',
+            ping_srcaddress: '10.228.130.165'
         },
         influx: {
             host: 'localhost',
@@ -58,7 +60,9 @@ var config = {
 	bandwidthTestDuration: 20,
         collectd: {
             snmp: '/etc/collectd.d/snmp.conf',
-            ping: '/etc/collectd.d/ping.conf'
+            ping: '/etc/collectd.d/ping.conf',
+            ping_device: 'ens8',
+            ping_srcaddress: '10.228.130.165'
         },
         influx: {
             host: 'localhost',
