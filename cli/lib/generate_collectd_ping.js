@@ -6,8 +6,10 @@ var path = require('path');
 var fs = require('fs');
 var util = require('util');
 var Q = require('q');
-var INTEVAL = require('../../config/gps').interval;
 var ping = require('../../config/gps').collectd.ping;
+var ping_device = require('../../config/gps').collectd.ping_device;
+var ping_srcaddress = require('../../config/gps').collectd.ping_srcaddress;
+
 
 function execute(nodes) {
     var deferred = Q.defer();
@@ -16,13 +18,8 @@ function execute(nodes) {
         var stream = fs.createWriteStream(ping);
         stream.write('LoadPlugin "ping"\n');
         stream.write('<Plugin "ping">\n');
-
-        stream.write('  Interval 1.0\n');
-        stream.write('  Timeout 0.9\n');
-        stream.write('  TTL 255\n');
-        stream.write('  SourceAddress "10.228.130.165"\n');
-        stream.write('  Device "ens8"\n');
-        stream.write('  MaxMissed -1\n');
+        stream.write('  SourceAddress "' + ping_srcaddress + '"\n');
+        stream.write('  Device "' + ping_device + '"\n');
 
         nodes.forEach(function(node) {
             stream.write('  Host "' + node.mainip + '"\n');
