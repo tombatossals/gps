@@ -34,10 +34,10 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
     });
 
     var saturationColor = {
-        0: "#491",
-        1: "#FFFF00",
-        2: "#FF8800",
-        3: "#FF0000"
+        0: '#491',
+        1: '#FFFF00',
+        2: '#FF8800',
+        3: '#FF0000'
     };
 
     var getNodeLatLng = function(nodeName) {
@@ -47,11 +47,11 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
     var showSidebar = function(active) {
         $('.sidebar').sidebar('show');
         $scope.active = active;
-    }
+    };
 
     $scope.closeSidebar = function() {
         $('.sidebar').sidebar('hide');
-    }
+    };
 
     $scope.$on('$routeChangeSuccess', function (event, route){
         if (angular.isDefined(route.params.node)) {
@@ -67,7 +67,10 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
     });
 
     $scope.$on('leafletDirectivePath.mouseout', function(event, e) {
-        if ($location.path().indexOf("/path") === 0) return;
+        if ($location.path().indexOf('/path') === 0) {
+            return;
+        }
+
         var link = $scope.paths[e.modelName];
         if (!$scope.active || $scope.active.name !== link.name) {
             link.color = link.activeColor;
@@ -75,17 +78,20 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
     });
 
     $scope.$on('leafletDirectivePath.mouseover', function(event, e) {
-        if ($location.path().indexOf("/path") === 0) return;
+        if ($location.path().indexOf('/path') === 0) {
+            return;
+        }
+
         var link = $scope.paths[e.modelName];
-        link.color = "#FFF";
+        link.color = '#FFF';
     });
 
     $scope.$on('leafletDirectivePath.click', function(event, e) {
-	console.log(e.modelName);
+	    console.log('click', e.modelName);
         var n1 = $scope.nodes[e.modelName.split('_')[0]];
         var n2 = $scope.nodes[e.modelName.split('_')[1]];
         $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
-        $location.url("/link/" + e.modelName.replace('_', '/'));
+        $location.url('/link/' + e.modelName.replace('_', '/'));
     });
 
 
@@ -93,10 +99,10 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
         var node = $scope.nodes[e.modelName];
         $scope.center.lat = node.lat;
         $scope.center.lng = node.lng;
-        $location.url("/node/" + node.name);
+        $location.url('/node/' + node.name);
     });
 
-    $http.get("/api/node/").success(function(nodes) {
+    $http.get('/api/node/').success(function(nodes) {
         for (var i in nodes) {
             var node = nodes[i];
 
@@ -125,9 +131,9 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
         }
         $scope.nodesPromise.resolve($scope.nodes);
 
-        $http.get("/api/link/").success(function(links) {
+        $http.get('/api/link/').success(function(links) {
             angular.forEach(links, function(link) {
-                var n1 = link.nodes[0]
+                var n1 = link.nodes[0];
                 var n2 = link.nodes[1];
                 var l1 = getNodeLatLng(n1.name);
                 var l2 = getNodeLatLng(n2.name);
@@ -136,11 +142,11 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
                     weight = 10;
                 }
 
-                message = '<img style="width: 380px;" src="/graph/bandwidth/' + n1.name + '/' + n2.name + '">';
+                message = '<img style="width: 380px;"" src="/graph/bandwidth/' + n1.name + '/' + n2.name + '">';
 
-                $scope.paths[n1.name + "_" + n2.name] = {
+                $scope.paths[n1.name + '_' + n2.name] = {
                     id: link._id,
-                    type: "polyline",
+                    type: 'polyline',
                     weight: weight,
                     color: saturationColor[link.saturation],
                     activeColor: saturationColor[link.saturation],
@@ -149,7 +155,7 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
                         message: message
                     },
                     opacity: 0.9,
-                    name: n1.name + "-" + n2.name,
+                    name: n1.name + '-' + n2.name,
                     distance: link.distance,
                     nodes: [ link.nodes[0].name, link.nodes[1].name ],
                     latlngs: [ l1, l2 ],

@@ -1,3 +1,5 @@
+'use strict';
+
 var node = require('../../app/models/node');
 var link = require('../../app/models/link');
 var Netmask = require('netmask').Netmask;
@@ -19,7 +21,7 @@ var isNetworkRegistered = function(address, links) {
 var getInterfaceInNetwork = function(node, network) {
     for (var i in node.interfaces) {
         var iface = node.interfaces[i];
-        if (iface && iface.name && iface.name.search("bonding") === -1 && iface.address && (iface.address.search('172.') === 0 || iface.address.search('10.') === 0)) {
+        if (iface && iface.name && iface.name.search('bonding') === -1 && iface.address && (iface.address.search('172.') === 0 || iface.address.search('10.') === 0)) {
             var address = iface.address.split('/')[0];
             if (network.contains(address)) {
                 return iface;
@@ -36,7 +38,7 @@ var getInterfacesSameNetwork = function(n1, n2) {
 	if (!iface.address) {
 		continue;
 	}
-        if (iface && iface.name && iface.name.search("bonding") === -1 && iface.address && (iface.address.search('172.') === 0 || iface.address.search('10.') === 0)) {
+        if (iface && iface.name && iface.name.search('bonding') === -1 && iface.address && (iface.address.search('172.') === 0 || iface.address.search('10.') === 0)) {
             var network = new Netmask(iface.address);
             var iface2 = getInterfaceInNetwork(n2, network);
 
@@ -78,7 +80,7 @@ var searchNetwork = function(network, mainNode, nodes) {
         for (var j in node.interfaces) {
             var iface = node.interfaces[j];
             if (iface.address && iface.address.indexOf('172.') === 0 && net.contains(iface.address)) {
-                console.log('Found new link from ' + mainNode.name + ' to ' + node.name + ':' + iface.address);
+                console.log('Found new link from ' + mainNode.name + ' to ' + node.name + ': ' + iface.address);
                 break;
             }
         }
@@ -89,13 +91,13 @@ var discoverNewLinks = function() {
     var df = Q.defer();
 
     node.getNodesByName().then(function(nodes) {
-        getLinks().then(function(links) {
+        link.getLinks().then(function(links) {
             for (var i in nodes) {
                 var node = nodes[i];
                 var networks = getUnregisteredNetworks(node.interfaces, links);
                 for (var j in networks) {
                     var net = networks[j];
-                    //console.log("Unregistered P2P link: " + node.name, net);
+                    //console.log('Unregistered P2P link: ' + node.name, net);
                     searchNetwork(net, node, nodes);
                 }
             }

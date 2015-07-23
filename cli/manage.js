@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-var util = require("util");
+'use strict';
+
+var util = require('util');
 var dburl = require('../config/config').db;
 var mongoose = require('mongoose');
-var yargs = require("yargs");
+var yargs = require('yargs');
 var path = require('path');
-var howtouse = "Usage: $0 <-l level> [print routing]|[ping [nodes]|discover [links]|generate [collectd_snmp|collectd_ping]|monitor [links|users|path]|update [interfaces|links|bandwidth|routing|sysinfo|ospf]|add [node|link] <file.json>]";
+var howtouse = 'Usage: $0 <-l level> [print routing]|[ping [nodes]|discover [links]|generate [collectd_snmp|collectd_ping]|monitor [links|users|path]|update [interfaces|links|bandwidth|routing|sysinfo|ospf]|add [node|link] <file.json>]';
 
 var options = {
     basedir: path.join(__dirname, 'config')
@@ -13,23 +15,23 @@ var options = {
 
 var check_parameters = function(argv) {
     var sections = {
-        generate: [ "collectd_snmp", "collectd_ping", "collectd_routeros" ],
-        monitor: [ "links", "users", "path" ],
-        discover: [ "links" ],
-        print: [ "routing" ],
-        update: [ "interfaces", "links", "bandwidth", "routing", "sysinfo", "ospf" ],
-        add: [ "node", "link" ],
-        ping: [ "nodes" ]
+        generate: [ 'collectd_snmp', 'collectd_ping', 'collectd_routeros' ],
+        monitor: [ 'links', 'users', 'path' ],
+        discover: [ 'links' ],
+        print: [ 'routing' ],
+        update: [ 'interfaces', 'links', 'bandwidth', 'routing', 'sysinfo', 'ospf' ],
+        add: [ 'node', 'link' ],
+        ping: [ 'nodes' ]
     };
 
     var section = argv._[0];
     var action = argv._[1];
 
-    if (!sections[section] || sections[section].indexOf(action) == -1) {
+    if (!sections[section] || sections[section].indexOf(action) === -1) {
         return false;
     }
 
-    if (section === "add" && argv._.length !== 3) {
+    if (section === 'add' && argv._.length !== 3) {
         return false;
     }
 
@@ -37,7 +39,7 @@ var check_parameters = function(argv) {
 };
 
 var argv = yargs.usage(howtouse).alias('l', 'level').demand(2).check(check_parameters).argv;
-var action = require(util.format("./lib/%s_%s", argv._[0], argv._[1]));
+var action = require(util.format('./lib/%s_%s', argv._[0], argv._[1]));
 var optional = [];
 
 var logLevel = argv.level,
