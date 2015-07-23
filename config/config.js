@@ -14,7 +14,7 @@ var config = {
   test: {
     root: rootPath,
     app: {
-      name: 'a'
+      name: 'gps'
     },
     port: 3000,
     db: 'mongodb://localhost/gps'
@@ -22,7 +22,7 @@ var config = {
   production: {
     root: rootPath,
     app: {
-      name: 'a'
+      name: 'gps'
     },
     port: 3000,
     db: 'mongodb://localhost/gps'
