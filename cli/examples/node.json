@@ -1,11 +1,11 @@
 {
-    "name": "catalans",
+    "name": "PoblaCultura",
     "system": "mikrotik",
-    "mainip": "10.90.80.72",
+    "mainip": "10.90.85.94",
     "username": "gps",
     "password": "guifirulez",
     "latlng": {
-        "lat": "39.939374",
-        "lng": "-0.004499"
+        "lat": "40.100642",
+        "lng": "-0.000633"
     }
 }

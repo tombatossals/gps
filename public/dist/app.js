@@ -76,30 +76,31 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
         $('.sidebar').sidebar({ overlay: true});
     });
 
-    $scope.$on('leafletDirectivePath.mouseout', function(event, link) {
+    $scope.$on('leafletDirectivePath.mouseout', function(event, e) {
         if ($location.path().indexOf("/path") === 0) return;
-        var link = $scope.paths[link.pathName];
+        var link = $scope.paths[e.modelName];
         if (!$scope.active || $scope.active.name !== link.name) {
             link.color = link.activeColor;
         }
     });
 
-    $scope.$on('leafletDirectivePath.mouseover', function(event, link) {
+    $scope.$on('leafletDirectivePath.mouseover', function(event, e) {
         if ($location.path().indexOf("/path") === 0) return;
-        var link = $scope.paths[link.pathName];
+        var link = $scope.paths[e.modelName];
         link.color = "#FFF";
     });
 
-    $scope.$on('leafletDirectivePath.click', function(event, link) {
-        var n1 = $scope.nodes[link.pathName.split('_')[0]];
-        var n2 = $scope.nodes[link.pathName.split('_')[1]];
+    $scope.$on('leafletDirectivePath.click', function(event, e) {
+	console.log(e.modelName);
+        var n1 = $scope.nodes[e.modelName.split('_')[0]];
+        var n2 = $scope.nodes[e.modelName.split('_')[1]];
         $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
-        $location.url("/link/" + link.pathName.replace('_', '/'));
+        $location.url("/link/" + e.modelName.replace('_', '/'));
     });
 
 
-    $scope.$on('leafletDirectiveMarker.click', function(event, node) {
-        var node = $scope.nodes[node.markerName];
+    $scope.$on('leafletDirectiveMarker.click', function(event, e) {
+        var node = $scope.nodes[e.modelName];
         $scope.center.lat = node.lat;
         $scope.center.lng = node.lng;
         $location.url("/node/" + node.name);

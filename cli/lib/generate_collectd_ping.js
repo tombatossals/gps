@@ -21,7 +21,7 @@ function execute(nodes) {
         stream.write('  Timeout 0.9\n');
         stream.write('  TTL 255\n');
         stream.write('  SourceAddress "10.228.130.165"\n');
-        stream.write('  Device "ens4"\n');
+        stream.write('  Device "ens8"\n');
         stream.write('  MaxMissed -1\n');
 
         nodes.forEach(function(node) {

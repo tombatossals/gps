@@ -7,4 +7,3 @@
 /certificate sign gps-server-template ca=gps-ca
 /ip service enable api-ssl
 /ip service set api-ssl certificate=gps-server-template
-

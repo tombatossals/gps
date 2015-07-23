@@ -1,4 +1,4 @@
 :foreach a in=[/user group find name="gps"] do={/user remove gps;}
 :foreach a in=[/user find name="gps"] do={/user group remove gps;}
-/user group add name=gps policy="ssh,read,test,winbox,api,!local,!telnet,!ftp,!reboot,!write,!policy,!password,!web,!sniff,!sensitive\"
+/user group add name=gps policy="ssh,read,test,winbox,api,!local,!telnet,!ftp,!reboot,!write,!policy,!password,!web,!sniff,!sensitive"
 /user add name=gps group=gps password=guifirulez
