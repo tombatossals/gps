@@ -1,55 +1,54 @@
-div.ui.large.inverted.vertical.wide.sidebar.menu
-    div.ui
-        div.item
-            | Supernode {{ active.name }}
-            a.ui.label(ng-click="closeSidebar()")
-                i.add.icon
-                | more
+div.ui
+    div.item
+        | Supernode {{ active.name }}
+        a.ui.label(ng-click="closeSidebar()")
+            i.add.icon
+            | more
 
-        div.item
-            b Supernode information
-            div.menu
-                a.item
-                    | IP
-                    span.label {{ active.node.ip }}
-                a.item
-                    | Uptime
-                    span.label {{ active.node.sysinfo.uptime }}
-                a.item
-                    | Model
-                    span.label {{ active.node.sysinfo.model }}
-                a.item
-                    | Version
-                    span.label {{ active.node.sysinfo.version }}
-                a.item
-                    | Firmware
-                    span.label {{ active.node.sysinfo.firmware }}
+    div.item
+        b Supernode information
+        div.menu
+            a.item
+                | IP
+                span.label {{ active.node.ip }}
+            a.item
+                | Uptime
+                span.label {{ active.node.sysinfo.uptime }}
+            a.item
+                | Model
+                span.label {{ active.node.sysinfo.model }}
+            a.item
+                | Version
+                span.label {{ active.node.sysinfo.version }}
+            a.item
+                | Firmware
+                span.label {{ active.node.sysinfo.firmware }}
 
-        div.item
-            b Routing information
-            div.menu
-                a.item
-                    | Active routes
-                    span.label {{ active.node.routing.active }}
-                a.item
-                    | Inactive routes
-                    span.label {{ active.node.routing.inactive }}
+    div.item
+        b Routing information
+        div.menu
+            a.item
+                | Active routes
+                span.label {{ active.node.routing.active }}
+            a.item
+                | Inactive routes
+                span.label {{ active.node.routing.inactive }}
 
-        div.item
-            b OSPF Instance information
-            div.menu
-                a.item
-                    | State
-                    span.label {{ active.node.ospf.state }}
-                a.item
-                    | RouterId
-                    span.label {{ active.node.ospf.routerId }}
-                a.item
-                    | Dijkstras
-                    span.label {{ active.node.ospf.dijkstras }}
+    div.item
+        b OSPF Instance information
+        div.menu
+            a.item
+                | State
+                span.label {{ active.node.ospf.state }}
+            a.item
+                | RouterId
+                span.label {{ active.node.ospf.routerId }}
+            a.item
+                | Dijkstras
+                span.label {{ active.node.ospf.dijkstras }}
 
-        div.item
-            b Ping graph
-            div.menu
-                a.item
-                    img(src="http://gps.qui.guifi.net/graph/ping/ujihumanas/?interval=monthly")
+    div.item
+        b Ping graph
+        div.menu
+            a.item
+                img(src="http://gps.qui.guifi.net/graph/ping/ujihumanas/?interval=monthly")

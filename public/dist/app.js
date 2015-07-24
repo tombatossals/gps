@@ -14,19 +14,32 @@ $(window.document).ready(function() {
 
 var app = angular.module('gps');
 
-app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$routeParams", "$q", "leafletBoundsHelpers", function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers) {
+app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$routeParams", "$q", "leafletBoundsHelpers", "leafletData", function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers, leafletData) {
+
+    //$('.sidebar').sidebar();
 
     $http.get('json/center.json').success(function(data) {
 	      $scope.center = data.center;
     });
 
     angular.extend($scope, {
-	center: {},
+	    center: {},
         nodes: {},
         paths: {},
         linksPromise: $q.defer(),
         nodesPromise: $q.defer(),
         bounds: [],
+        events: {
+            markers: {
+                enable: [ 'click' ],
+                logic: 'emit'
+            },
+            paths: {
+                enable: [ 'mouseout', 'mouseover', 'mousedown' ],
+                logic: 'emit'
+            }
+
+        },
         layers: {
             baselayers: {
                 googleHybrid: {
@@ -55,15 +68,18 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
     };
 
     var showSidebar = function(active) {
-        $('.sidebar').sidebar('show');
-        $scope.active = active;
+        $timeout(function() {
+            $('.sidebar').sidebar('show');
+            $scope.active = active;
+        }, 300);
     };
 
     $scope.closeSidebar = function() {
         $('.sidebar').sidebar('hide');
     };
 
-    $scope.$on('$routeChangeSuccess', function (event, route){
+    $scope.$on('$routeChangeSuccess', function (event, route) {
+
         if (angular.isDefined(route.params.node)) {
             $scope.nodesPromise.promise.then(function(nodes) {
                 showSidebar(nodes[route.params.node]);
@@ -73,7 +89,6 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
                 showSidebar(links[route.params.n1 + '_' + route.params.n2]);
             });
         }
-        $('.sidebar').sidebar({ overlay: true});
     });
 
     $scope.$on('leafletDirectivePath.mouseout', function(event, e) {
@@ -96,8 +111,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
         link.color = '#FFF';
     });
 
-    $scope.$on('leafletDirectivePath.click', function(event, e) {
-	    console.log('click', e.modelName);
+    $scope.$on('leafletDirectivePath.mousedown', function(event, e) {
         var n1 = $scope.nodes[e.modelName.split('_')[0]];
         var n2 = $scope.nodes[e.modelName.split('_')[1]];
         $scope.bounds = leafletBoundsHelpers.createBoundsFromArray([[n1.lat, n1.lng], [n2.lat, n2.lng]]);
