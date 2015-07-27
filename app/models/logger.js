@@ -1,7 +1,8 @@
 'use strict';
 
-var bunyan = require('bunyan'),
-    fs = require('fs');
+var bunyan = require('bunyan');
+var path = require('path');
+var fs = require('fs');
 
 var initLogger = function(level) {
 
@@ -19,7 +20,7 @@ var initLogger = function(level) {
     }
 
     if (!logdir) {
-        console.log('Log directory doesn\'t exists:' + __dirname + '/../../log/debug.log');
+        console.log('Log directory doesn\'t exists: ' + path.normalize(__dirname + '/../../log'));
         process.exit(-1);
     }
 
