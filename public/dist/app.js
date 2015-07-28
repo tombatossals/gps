@@ -180,6 +180,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
                     },
                     opacity: 0.9,
                     name: n1.name + '-' + n2.name,
+                    network: link.network,
                     distance: link.distance,
                     nodes: [ link.nodes[0].name, link.nodes[1].name ],
                     latlngs: [ l1, l2 ],
