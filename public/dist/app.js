@@ -1,7 +1,13 @@
 'use strict';
 
-angular.module('gps', [ 'ngRoute', 'leaflet-directive']).config(["$locationProvider", function ($locationProvider) {
+var gps = angular.module('gps', [ 'ngRoute', 'satellizer', 'leaflet-directive']);
+
+gps.config(["$locationProvider", function ($locationProvider) {
     $locationProvider.html5Mode(false);
+}]);
+
+gps.config(["$authProvider", function($authProvider) {
+    $authProvider.loginUrl = '/api/user/login';
 }]);
 
 $(window.document).ready(function() {
@@ -14,9 +20,12 @@ $(window.document).ready(function() {
 
 var app = angular.module('gps');
 
-app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$routeParams", "$q", "leafletBoundsHelpers", "leafletData", function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers, leafletData) {
+app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$routeParams", "$q", "leafletBoundsHelpers", "leafletData", "gpsService", function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers, leafletData, gpsService) {
 
     //$('.sidebar').sidebar();
+
+    $scope.api = gpsService.api;
+    $scope.user = gpsService.user;
 
     $http.get('json/center.json').success(function(data) {
 	      $scope.center = data.center;
@@ -51,6 +60,12 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
                     name: 'OpenStreetMap',
                     url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     type: 'xyz'
+                }
+            }, overlays: {
+                discovered: {
+                    name: 'Discovered links',
+                    type: 'group',
+                    visible: false
                 }
             }
         }
@@ -186,6 +201,33 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
                     latlngs: [ l1, l2 ],
                     link: { n1: n1, n2: n2}
                 };
+            });
+
+            $http.get('/api/link/autodiscovered').success(function(links) {
+                angular.forEach(links, function(link) {
+                    var n1 = link.nodes[0];
+                    var n2 = link.nodes[1];
+                    var l1 = getNodeLatLng(n1.name);
+                    var l2 = getNodeLatLng(n2.name);
+                    var weight = 10;
+
+                    $scope.paths[n1.name + '_' + n2.name] = {
+                        id: link._id,
+                        type: 'polyline',
+                        layer: 'discovered',
+                        discovered: link.discovered,
+                        weight: 10,
+                        color: '#000',
+                        activeColor: '#000',
+                        opacity: 0.9,
+                        name: n1.name + '-' + n2.name,
+                        network: link.network,
+                        distance: link.distance,
+                        nodes: [ link.nodes[0].name, link.nodes[1].name ],
+                        latlngs: [ l1, l2 ],
+                        link: { n1: n1, n2: n2}
+                    };
+                });
                 $scope.linksPromise.resolve($scope.paths);
             });
         });
@@ -400,3 +442,77 @@ app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "le
         });
     });
 }]);
+
+'use strict';
+
+var gpsService = function ($http, $auth) {
+
+    return {
+        api: {
+            deleteLink: function(link) {
+                $http.delete('/api/link/' + link.id).success(function(r) {
+                    console.log('done', r);
+                })
+            },
+            disableLink: function(link) {
+                $http.put('/api/link/' + link.id + '/disable/').success(function(r) {
+                    link.discovered = true;
+                    console.log('done', r);
+                })
+            },
+            enableLink: function(link) {
+                $http.put('/api/link/' + link.id + '/enable/').success(function(r) {
+                    link.discovered = false;
+                    console.log('done', r);
+                })
+            }
+        },
+        user: {
+            authenticate: function (provider, user) {
+                $auth.authenticate(provider).then(function () {
+                    $('.login.modal').modal('hide');
+                }).catch(function (response) {
+                    console.log(response);
+                });
+            },
+
+            login: function(email, password) {
+                $auth.login({ email: email, password: password }).then(function() {
+                    $('.login.modal').modal('hide');
+                }).catch(function(response) {
+                    console.log('fail');
+                });
+            },
+
+            showLogin: function () {
+                $('.login.modal').modal('show');
+            },
+
+            isAuthenticated: function () {
+                return $auth.isAuthenticated();
+            },
+
+            toggleLink: function (provider, user) {
+                if (!user[provider]) {
+                    $auth.link(provider).then(function (id) {
+                        user[provider] = id;
+                    });
+                } else {
+                    $auth.unlink(provider).then(function () {
+                        user[provider] = undefined;
+                    });
+                }
+            },
+
+            logout: function () {
+                $auth.logout();
+            }
+        }
+    };
+};
+gpsService.$inject = ["$http", "$auth"];
+
+
+angular
+    .module('gps')
+    .factory('gpsService', gpsService);

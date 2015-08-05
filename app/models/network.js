@@ -69,7 +69,7 @@ var getUnregisteredNetworks = function(interfaces, links) {
     return unregistered;
 };
 
-var searchNetwork = function(network, mainNode, nodes) {
+var searchPairingNode = function(network, mainNode, nodes) {
     for (var i in nodes) {
         var node = nodes[i];
         var net = new Netmask(network);
@@ -80,28 +80,45 @@ var searchNetwork = function(network, mainNode, nodes) {
         for (var j in node.interfaces) {
             var iface = node.interfaces[j];
             if (iface.address && iface.address.indexOf('172.') === 0 && net.contains(iface.address)) {
-                console.log('Found new link from ' + mainNode.name + ' to ' + node.name + ': ' + iface.address);
-                break;
+                return node;
             }
         }
     }
 };
 
+var searchForPair = function(pair, pairs) {
+    for (var i=0; i<pairs.length; i++) {
+        var p = pairs[i];
+        if (p[0] === pair[0] && p[1] === pair[1] || p[1] === pair[0] && p[0] === pair[1]) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
 var discoverNewLinks = function() {
     var df = Q.defer();
+    var pairs = [];
 
     node.getNodesByName().then(function(nodes) {
         link.getLinks().then(function(links) {
+            var promises = [];
             for (var i in nodes) {
                 var node = nodes[i];
                 var networks = getUnregisteredNetworks(node.interfaces, links);
                 for (var j in networks) {
                     var net = networks[j];
-                    //console.log('Unregistered P2P link: ' + node.name, net);
-                    searchNetwork(net, node, nodes);
+                    var paired = searchPairingNode(net, node, nodes);
+                    if (paired && !searchForPair([node.name, paired.name], pairs)) {
+                        promises.push(link.addDiscoveredLink([ node, paired ]));
+                    }
                 }
             }
-            df.resolve();
+
+            Q.allSettled(promises).then(function(results) {
+                df.resolve(results);
+            });
         });
     });
 
@@ -110,7 +127,6 @@ var discoverNewLinks = function() {
 
 module.exports = {
     discoverNewLinks: discoverNewLinks,
-    searchNetwork: searchNetwork,
     getUnregisteredNetworks: getUnregisteredNetworks,
     isNetworkRegistered: isNetworkRegistered,
     getInterfacesSameNetwork: getInterfacesSameNetwork

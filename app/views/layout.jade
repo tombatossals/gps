@@ -22,6 +22,7 @@ html(lang='en')
           script(src='/components/angular/angular.min.js')
           script(src='/components/angular-route/angular-route.min.js')
           script(src='/components/leaflet/dist/leaflet.js')
+          script(src='/components/satellizer/satellizer.min.js')
           script(src='/components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.js')
           script(src='/components/leaflet-plugins/layer/tile/Google.js')
           script(src='/components/Leaflet.label/dist/leaflet.label.js')
@@ -31,3 +32,16 @@ html(lang='en')
       block customjs
 
       block content
+
+      div.ui.small.modal.login
+        i.close.icon
+        div.header Login
+        div.content
+            form.ui.form
+                div.field
+                    label Username
+                    input(type="text", name="username", ng-model="username", placeholder="Username")
+                div.field
+                    label Password
+                    input(type="password", name="password", ng-model="password", placeholder="Password")
+                button.ui.button(ng-click="user.login(username, password)") Submit

@@ -9,6 +9,7 @@
     "Leaflet.label": "latest",
     "leaflet-plugins": "latest",
     "Leaflet.awesome-markers": "latest",
+    "satellizer": "latest",
     "angular-route": "latest",
     "jquery": "latest"
   },

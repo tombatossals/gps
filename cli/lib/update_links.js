@@ -44,6 +44,8 @@ function execute(nodes) {
                 Q.allSettled(promises).then(function(results) {
                     deferred.resolve(results);
                 });
+            }).fail(function(err) {
+                deferred.reject(err);
             });
         });
     }

@@ -18,7 +18,7 @@
             <span class="label">{{ active.network }}</span>
         </a>
         <div class="item">
-            Node
+            Name
             <span class="label"><a ng-href="/#/node/{{ active.nodes[0]}}">{{ active.nodes[0] }}</a> - <a ng-href="/#/node/{{ active.nodes[1]}}">{{ active.nodes[1] }}</a></span>
         </div>
     </div>
@@ -44,5 +44,18 @@
         <a class="item" ng-href="/link/#/{{ active.nodes[0] }}/{{ active.nodes[1] }}">
             <img ng-src="/graph/bandwidth/{{ active.nodes[0]}}/{{ active.nodes[1]}}" />
         </a>
+    </div>
+</div>
+
+<div class="item" ng-if="user.isAuthenticated()">
+    <b>Administration</b>
+    <div class="menu">
+        <div class="item">
+            <button class="ui button" ng-if="!active.discovered" ng-click="api.disableLink(active)">Disable link</button>
+            <button class="ui green button" ng-if="active.discovered" ng-click="api.enableLink(active)">Enable link</button>
+        </div>
+        <div class="item">
+            <button class="ui red button" ng-click="api.deleteLink(active)">Delete link</button>
+        </div>
     </div>
 </div>

@@ -18,6 +18,10 @@ var linkModel = function() {
         bandwidth: {
             type: String
         },
+        discovered: {
+            type: Boolean,
+            default: false
+        },
         network: {
             type: String
         },
@@ -49,19 +53,23 @@ var linkModel = function() {
             }
         }],
     });
+
     return mongoose.model('Link', linkSchema);
 };
 
 var Link = new linkModel();
 
 var checkDuplicates = function(links) {
-    var found,
-        i,
-        duplicates = {},
-        deferred = Q.defer();
+    var found;
+    var i;
+    var duplicates = {};
+    var df = Q.defer();
+
+    var linksWithoutDuplicates = [];
 
     for (var j in links) {
         var link = links[j];
+        var duplicated = false;
 
         var n1 = link.nodes[0].id;
         var n2 = link.nodes[1].id;
@@ -70,45 +78,56 @@ var checkDuplicates = function(links) {
             duplicates[n1] = [];
         }
 
-        if (duplicates[n1].indexOf(n2) !== -1) {
-            deferred.reject(util.format('Duplicate link: %s', link.id));
-        } else {
+        if (duplicates[n1].indexOf(n2) === -1) {
             duplicates[n1].push(n2);
+        } else {
+            duplicated = true;
         }
 
         if (!duplicates.hasOwnProperty(n2)) {
             duplicates[n2] = [];
         }
 
-        if (duplicates[n2].indexOf(n1) !== -1) {
-            deferred.reject(util.format('Duplicate link: %s', link.id));
-        } else {
+        if (duplicates[n2].indexOf(n1) === -1) {
             duplicates[n2].push(n1);
+        } else {
+            duplicated = true;
+        }
+
+        if (!duplicated) {
+            linksWithoutDuplicates.push(link);
         }
     }
 
-    deferred.resolve();
-
-    return deferred.promise;
+    df.resolve(linksWithoutDuplicates);
+    return df.promise;
 };
 
 var getLinks = function(query) {
-    var deferred = Q.defer();
+    var df = Q.defer();
+
+    if (!query) {
+        query = {};
+    }
+
+    if (!query.discovered) {
+        query.discovered = false;
+    }
 
     Link.find(query, function(error, links) {
         if (error) {
-            deferred.reject('Error searching for links.');
+            df.reject('Error searching for links.');
             return;
         }
 
-        checkDuplicates(links).then(function() {
-            deferred.resolve(links);
+        checkDuplicates(links).then(function(links) {
+            df.resolve(links);
         }).fail(function(err) {
-            deferred.reject(err);
+            df.reject(err);
         });
     });
 
-    return deferred.promise;
+    return df.promise;
 };
 
 
@@ -210,6 +229,23 @@ var addLink = function(nodes) {
     return deferred.promise;
 };
 
+var addDiscoveredLink = function(nodes) {
+    var deferred = Q.defer();
+
+    getLinkByNodes(nodes).then(function(link) {
+        deferred.reject(util.format('The link %s-%s already exists', nodes[0].name, nodes[1].name));
+    }).fail(function() {
+        var newLink = new Link({ nodes: [ { name: nodes[0].name, id: nodes[0].id }, { name: nodes[1].name, id: nodes[1].id } ] });
+        newLink.discovered = true;
+        newLink.save(function() {
+            deferred.resolve(newLink);
+        });
+    });
+
+    return deferred.promise;
+};
+
+
 var update = function(link, n1, n2, ifaces) {
     var deferred = Q.defer();
 
@@ -307,6 +343,7 @@ var updateNewLinks = function() {
 
 module.exports = {
     addLink: addLink,
+    addDiscoveredLink: addDiscoveredLink,
     getLinkByNodes: getLinkByNodes,
     getLinksByNodeName: getLinksByNodeName,
     getLinksById: getLinksById,

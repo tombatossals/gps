@@ -8,7 +8,8 @@ module.exports = {
                 'public/js/app.js',
                 'public/js/controllers/map.js',
                 'public/js/controllers/node.js',
-                'public/js/controllers/link.js'
+                'public/js/controllers/link.js',
+                'public/js/services/gps.js'
             ]
         }
     }

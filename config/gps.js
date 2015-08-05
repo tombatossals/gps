@@ -1,8 +1,8 @@
 'use strict';
 
 var path = require('path'),
-    rootPath = path.normalize(__dirname + '/..'),
-    env = process.env.NODE_ENV || 'development';
+rootPath = path.normalize(__dirname + '/..'),
+env = process.env.NODE_ENV || 'development';
 
 var getInterval = function() {
     var interval = parseInt(process.env.COLLECTD_INTERVAL, 10);
@@ -15,7 +15,7 @@ var getInterval = function() {
 var config = {
     development: {
         interval: getInterval(),
-	bandwidthTestDuration: 20,
+        bandwidthTestDuration: 20,
         collectd: {
             snmp: '/etc/collectd.d/snmp.conf',
             ping: '/etc/collectd.d/ping.conf',
@@ -29,14 +29,15 @@ var config = {
             password: 'guifi',
             database: 'gps'
         },
-    	rrdpath: '/var/lib/collectd',
-    	hostname: 'gps',
-	apissl: true
+        rrdpath: '/var/lib/collectd',
+        hostname: 'gps',
+        apissl: true,
+        tokenSecret: 'HardDayNight'
     },
 
     test: {
         interval: getInterval(),
-	bandwidthTestDuration: 20,
+        bandwidthTestDuration: 20,
         collectd: {
             snmp: '/etc/collectd.d/snmp.conf',
             ping: '/etc/collectd.d/ping.conf',
@@ -50,14 +51,15 @@ var config = {
             password: 'guifi',
             database: 'gps'
         },
-    	rrdpath: '/var/lib/collectd',
-    	hostname: 'gps',
-	apissl: true
+        rrdpath: '/var/lib/collectd',
+        hostname: 'gps',
+        apissl: true,
+        tokenSecret: 'HardDayNight'
     },
 
     production: {
         interval: getInterval(),
-	bandwidthTestDuration: 20,
+        bandwidthTestDuration: 20,
         collectd: {
             snmp: '/etc/collectd.d/snmp.conf',
             ping: '/etc/collectd.d/ping.conf',
@@ -71,9 +73,10 @@ var config = {
             password: 'guifi',
             database: 'gps'
         },
-    	rrdpath: '/var/lib/collectd',
-    	hostname: 'gps',
-	apissl: true
+        rrdpath: '/var/lib/collectd',
+        hostname: 'gps',
+        apissl: true,
+        tokenSecret: 'HardDayNight'
     }
 };
 

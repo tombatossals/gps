@@ -4,9 +4,12 @@
 
 var app = angular.module('gps');
 
-app.controller('MapController', function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers, leafletData) {
+app.controller('MapController', function($scope, $http, $timeout, $location, $routeParams, $q, leafletBoundsHelpers, leafletData, gpsService) {
 
     //$('.sidebar').sidebar();
+
+    $scope.api = gpsService.api;
+    $scope.user = gpsService.user;
 
     $http.get('json/center.json').success(function(data) {
 	      $scope.center = data.center;
@@ -41,6 +44,12 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
                     name: 'OpenStreetMap',
                     url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     type: 'xyz'
+                }
+            }, overlays: {
+                discovered: {
+                    name: 'Discovered links',
+                    type: 'group',
+                    visible: false
                 }
             }
         }
@@ -176,6 +185,33 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
                     latlngs: [ l1, l2 ],
                     link: { n1: n1, n2: n2}
                 };
+            });
+
+            $http.get('/api/link/autodiscovered').success(function(links) {
+                angular.forEach(links, function(link) {
+                    var n1 = link.nodes[0];
+                    var n2 = link.nodes[1];
+                    var l1 = getNodeLatLng(n1.name);
+                    var l2 = getNodeLatLng(n2.name);
+                    var weight = 10;
+
+                    $scope.paths[n1.name + '_' + n2.name] = {
+                        id: link._id,
+                        type: 'polyline',
+                        layer: 'discovered',
+                        discovered: link.discovered,
+                        weight: 10,
+                        color: '#000',
+                        activeColor: '#000',
+                        opacity: 0.9,
+                        name: n1.name + '-' + n2.name,
+                        network: link.network,
+                        distance: link.distance,
+                        nodes: [ link.nodes[0].name, link.nodes[1].name ],
+                        latlngs: [ l1, l2 ],
+                        link: { n1: n1, n2: n2}
+                    };
+                });
                 $scope.linksPromise.resolve($scope.paths);
             });
         });
