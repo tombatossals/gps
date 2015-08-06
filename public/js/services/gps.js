@@ -5,9 +5,11 @@ var gpsService = function ($http, $auth) {
     return {
         api: {
             deleteLink: function(link) {
-                $http.delete('/api/link/' + link.id).success(function(r) {
-                    console.log('done', r);
-                })
+                if (confirm("Are you sure?") === true) {
+                    $http.delete('/api/link/' + link.id).success(function(r) {
+                        console.log('done', r);
+                    });
+                }
             },
             disableLink: function(link) {
                 $http.put('/api/link/' + link.id + '/disable/').success(function(r) {
@@ -31,8 +33,8 @@ var gpsService = function ($http, $auth) {
                 });
             },
 
-            login: function(email, password) {
-                $auth.login({ email: email, password: password }).then(function() {
+            login: function(email, password, redirect) {
+                $auth.login({ email: email, password: password }, redirect).then(function() {
                     $('.login.modal').modal('hide');
                 }).catch(function(response) {
                     console.log('fail');
@@ -59,8 +61,9 @@ var gpsService = function ($http, $auth) {
                 }
             },
 
-            logout: function () {
-                $auth.logout();
+            logout: function (redirect) {
+                console.log(redirect);
+                $auth.logout(redirect);
             }
         }
     };

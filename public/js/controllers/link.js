@@ -12,6 +12,7 @@ var saturationColor = {
 };
 
 app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, leafletData, $window) {
+
     angular.extend($scope, {
         center: {},
         layers: {
@@ -43,6 +44,11 @@ app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, l
     });
 
     $scope.$on('$routeChangeSuccess', function (event, route){
+
+        if (!route || !route.params) {
+            return;
+        }
+
         var n1 = route.params.n1;
         var n2 = route.params.n2;
 

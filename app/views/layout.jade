@@ -28,7 +28,7 @@ html(lang='en')
           script(src='/components/Leaflet.label/dist/leaflet.label.js')
           script(src="/components/Leaflet.ExtraMarkers/src/leaflet.extra-markers.js")
           script(src='/components/angular-leaflet-directive/dist/angular-leaflet-directive.js')
-          script(src='/dist/app.min.js')
+          script(src='/dist/app.js')
       block customjs
 
       block content
@@ -44,4 +44,4 @@ html(lang='en')
                 div.field
                     label Password
                     input(type="password", name="password", ng-model="password", placeholder="Password")
-                button.ui.button(ng-click="user.login(username, password)") Submit
+                button.ui.button(ng-click="user.login(username, password, location.path)") Submit

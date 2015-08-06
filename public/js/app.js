@@ -10,6 +10,12 @@ gps.config(function($authProvider) {
     $authProvider.loginUrl = '/api/user/login';
 });
 
+gps.run(function($rootScope, $location, gpsService) {
+    $rootScope.location = $location;
+    $rootScope.user = gpsService.user;
+    $rootScope.api = gpsService.api;
+});
+
 $(window.document).ready(function() {
     $('.sidebar').sidebar({ overlay: true});
 });

@@ -16,6 +16,17 @@ block content
                 div.wide.column
                     div.ui.inverted.blue.menu
                         a.header.item(href="/") GPS
-                        div.item Node {{ link.name }}
+                        a.item(ng-href="#/{{ link.nodes[0].name }}/{{ link.nodes[1].name }}") Link {{ link.nodes[0].name }} - {{ link.nodes[1].name }}
+                        div.right.menu
+                            div.item(ng-if="user.isAuthenticated()")
+                                button.ui.button(ng-if="!active.discovered", ng-click="api.disableLink(link)") Disable link
+                                button.ui.green.button(ng-if="active.discovered" ng-click="api.enableLink(link)") Enable link
+                            div.item(ng-if="user.isAuthenticated()")
+                                button.ui.red.button(ng-click="api.deleteLink(link)") Delete link
+                            div.item
+                                div.small.ui.olive.button(ng-click="user.showLogin()", ng-if="!user.isAuthenticated()") Login
+                                div.small.ui.red.button(ng-click="user.logout(location.path)", ng-if="user.isAuthenticated()") Logout
+
+
 
         div.ui.page.ng-view
