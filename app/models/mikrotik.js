@@ -1,7 +1,7 @@
 'use strict';
 
 var apissl = require('../../config/gps').apissl || false;
-var api = require('mikronode');
+var api = require('mikronode-tls');
 var util = require('util');
 var Netmask  = require('netmask').Netmask;
 var interval = require('../../config/gps').interval;
