@@ -2,16 +2,17 @@
   "name": "gps",
   "version": "0.0.1",
   "dependencies": {
-    "angular": "latest",
+    "leaflet-plugins": "^2.0.0",
     "semantic-ui": "latest",
+    "angular": "1.4.9",
     "angular-leaflet-directive": "latest",
-    "Leaflet.ExtraMarkers": "git://github.com/coryasilva/Leaflet.ExtraMarkers#master",
+    "Leaflet.ExtraMarkers": "https://github.com/coryasilva/Leaflet.ExtraMarkers/archive/v1.0.1.tar.gz",
     "Leaflet.label": "latest",
-    "leaflet-plugins": "latest",
     "Leaflet.awesome-markers": "latest",
     "satellizer": "latest",
-    "angular-route": "latest",
-    "jquery": "latest"
+    "angular-route": "1.4.9",
+    "jquery": "latest",
+    "font-awesome": "^4.7.0"
   },
   "ignore": [
     "**/.*",

@@ -53,23 +53,29 @@ setTimeout(function() {
     process.exit();
 }, 1800000);
 
-mongoose.connect(dburl);
-action.execute(optional).then(function(results) {
-    for (var i in results) {
-        var res = results[i];
-        if (res.state === 'rejected') {
-            logger.warn(res.reason);
-        } else if (res.value !== undefined) {
-            logger.debug(res.value);
+mongoose.Promise = require('q').Promise;
+var promise = mongoose.connect(dburl, {
+    useMongoClient: true
+});
+
+promise.then(function() {
+    action.execute(optional).then(function(results) {
+        for (var i in results) {
+            var res = results[i];
+            if (res.state === 'rejected') {
+                logger.warn(res.reason);
+            } else if (res.value !== undefined) {
+                logger.debug(res.value);
+            }
         }
-    }
-}).fail(function(err) {
-    console.log('ERROR', err);
-}).done(function() {
-    mongoose.disconnect();
-    setTimeout(function() {
-        process.exit(-1);
-    }, 3000);
+    }).fail(function(err) {
+        console.log('ERROR', err);
+    }).done(function() {
+        mongoose.disconnect();
+        setTimeout(function() {
+            process.exit(-1);
+        }, 3000);
+    });
 });
 
 process.on('uncaughtException', function (err) {

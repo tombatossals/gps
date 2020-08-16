@@ -2,7 +2,7 @@
 
 var Netmask   = require('netmask').Netmask,
     util      = require('util'),
-    sshConn   = require('ssh2'),
+    sshConn   = require('ssh2').Client,
     INTERVAL = require('../../config/gps').interval,
     Q = require('q');
 
@@ -321,7 +321,9 @@ var bandwidthTest = function(link, n1, n2) {
                         }
                     }
                 }
-            });
+            }).stderr.on('data', function(data) {
+        	deferred.resolve('Error');
+	    });
             stream.on('exit', function() {
                 tx = parseInt(tx, 10) * 1024 * 1024;
                 rx = parseInt(rx, 10) * 1024 * 1024;

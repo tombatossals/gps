@@ -32,13 +32,12 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
 
     $scope.api = gpsService.api;
     $scope.user = gpsService.user;
-
     $http.get('json/center.json').success(function(data) {
-	      $scope.center = data.center;
+      $scope.center = data.center;
     });
 
     angular.extend($scope, {
-	    center: {},
+        center: {},
         nodes: {},
         paths: {},
         linksPromise: $q.defer(),
@@ -57,15 +56,15 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
         },
         layers: {
             baselayers: {
-                googleHybrid: {
-                    name: 'Google Hybrid',
-                    layerType: 'HYBRID',
-                    type: 'google'
-                },
                 osm: {
                     name: 'OpenStreetMap',
                     url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     type: 'xyz'
+                },
+                googleHybrid: {
+                    name: 'Google Hybrid',
+                    layerType: 'HYBRID',
+                    type: 'google'
                 }
             }, overlays: {
                 discovered: {
@@ -100,7 +99,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
     };
 
     $scope.$on('$routeChangeSuccess', function (event, route) {
-
+        console.log('router');
         if (angular.isDefined(route.params.node)) {
             $scope.nodesPromise.promise.then(function(nodes) {
                 showSidebar(nodes[route.params.node]);
@@ -147,6 +146,7 @@ app.controller('MapController', ["$scope", "$http", "$timeout", "$location", "$r
         $location.url('/node/' + node.name);
     });
 
+	  console.log('lala');
     $http.get('/api/node/').success(function(nodes) {
         for (var i in nodes) {
             var node = nodes[i];
@@ -334,15 +334,10 @@ app.controller('NodeController', ["$scope", "$routeParams", "$http", "$window", 
 
 var app = angular.module('gps');
 
-var saturationColor = {
-  0: "#491",
-  1: "#FFFF00",
-  2: "#FF8800",
-  3: "#FF0000"
-};
+app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "leafletData", "$window", "$rootScope", function($scope, $http, leafletBoundsHelpers, leafletData, $window, $rootScope) {
 
-app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "leafletData", "$window", function($scope, $http, leafletBoundsHelpers, leafletData, $window) {
-
+    $('.ui.dropdown').dropdown();
+    
     angular.extend($scope, {
         center: {},
         layers: {
@@ -373,6 +368,13 @@ app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "le
         $window.location.href = '/#/node/' + node.name;
     });
 
+    $rootScope.$on('linkUpdated', function(data) {
+        var n1 = $scope.nodes[$scope.link.nodes[0].name];
+        var n2 = $scope.nodes[$scope.link.nodes[1].name];
+        $scope.paths[n1.name + "_" + n2.name].color = $rootScope.api.getColor($scope.link);
+        console.log(data);
+    });
+
     $scope.$on('$routeChangeSuccess', function (event, route){
 
         if (!route || !route.params) {
@@ -396,7 +398,7 @@ app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "le
             $scope.paths[n1.name + "_" + n2.name] = {
                 weight: weight,
                 saturation: data.link.saturation,
-                color: saturationColor[data.link.saturation],
+                color: $rootScope.api.getColor($scope.link),
                 label: {
                     message: '<p>' + data.link.distance + ' meters</p>'
                 },
@@ -457,49 +459,59 @@ app.controller('LinkController', ["$scope", "$http", "leafletBoundsHelpers", "le
 
 'use strict';
 
-var gpsService = function ($http, $auth) {
+var gpsService = function ($http, $auth, $rootScope) {
+
+    var saturationColor = {
+        0: '#491',
+        1: '#FFFF00',
+        2: '#FF8800',
+        3: '#FF0000'
+    };
 
     return {
         api: {
+            getColor: function(link) {
+                if (link.discovered) {
+                    return '#000';
+                }
+                return saturationColor[link.saturation];
+            },
             deleteLink: function(link) {
-                if (confirm("Are you sure?") === true) {
-                    $http.delete('/api/link/' + link.id).success(function(r) {
-                        console.log('done', r);
+                var id = link.id || link._id;
+                if (confirm('Are you sure?') === true) {
+                    $http.delete('/api/link/' + id).success(function(r) {
                     });
                 }
             },
             disableLink: function(link) {
-                $http.put('/api/link/' + link.id + '/disable/').success(function(r) {
+                var id = link.id || link._id;
+                $http.put('/api/link/' + id + '/disable/').success(function(r) {
                     link.discovered = true;
-                    console.log('done', r);
-                })
+                    $rootScope.$emit('linkUpdated', { discovered: true });
+                });
+            },
+            addNode: function() {
+
             },
             enableLink: function(link) {
-                $http.put('/api/link/' + link.id + '/enable/').success(function(r) {
+                var id = link.id || link._id;
+                $http.put('/api/link/' + id + '/enable/').success(function(r) {
                     link.discovered = false;
-                    console.log('done', r);
-                })
+                    $rootScope.$emit('linkUpdated', { discovered: false });
+                });
             }
         },
         user: {
             authenticate: function (provider, user) {
-                $auth.authenticate(provider).then(function () {
-                    $('.login.modal').modal('hide');
-                }).catch(function (response) {
-                    console.log(response);
-                });
+                return $auth.authenticate(provider);
             },
 
             login: function(email, password, redirect) {
-                $auth.login({ email: email, password: password }, redirect).then(function() {
-                    $('.login.modal').modal('hide');
-                }).catch(function(response) {
-                    console.log('fail');
-                });
+                return $auth.login({ email: email, password: password }, redirect);
             },
 
-            showLogin: function () {
-                $('.login.modal').modal('show');
+            getUser: function() {
+                return $http.get('/api/user');
             },
 
             isAuthenticated: function () {
@@ -519,13 +531,12 @@ var gpsService = function ($http, $auth) {
             },
 
             logout: function (redirect) {
-                console.log(redirect);
                 $auth.logout(redirect);
             }
         }
     };
 };
-gpsService.$inject = ["$http", "$auth"];
+gpsService.$inject = ["$http", "$auth", "$rootScope"];
 
 
 angular

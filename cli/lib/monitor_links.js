@@ -36,7 +36,7 @@ var startBandwidthTest = function(linkId) {
             });
         });
     });
-    return deferred.promise;
+    return deferred.promise.timeout(60000);
 };
 
 var monitorGroupOfLinks = function(group, results) {
@@ -122,7 +122,9 @@ var execute = function(nodes) {
         linkModel.getLinks(query).then(function(links) {
     		startMonitoring(links).then(function(results) {
                     deferred.resolve(results);
-                });
+                }).catch(function(error) {
+			deferred.reject(error);
+		});
         });
     }
 

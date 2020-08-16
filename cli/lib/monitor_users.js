@@ -42,7 +42,7 @@ function execute(nodes) {
             deferred.resolve(results);
         });
     }).fail(function(error) {
-        deferred.reject().done();
+        deferred.reject(error);
     });
 
     return deferred.promise;

@@ -7,6 +7,7 @@ var user = require('../models/user');
 var moment = require('moment');
 var jwt = require('jwt-simple');
 var TOKEN_SECRET = require('../../config/gps').tokenSecret;
+var ensureAuthenticated = require('../models/auth').ensureAuthenticated;
 
 function createJWT(user) {
     var payload = {
@@ -19,6 +20,13 @@ function createJWT(user) {
 
 module.exports = function (app) {
     app.use('/api/user', router);
+
+    router.get('/', ensureAuthenticated, function (req, res) {
+        var userId = req.user;
+        user.getUser({ _id: userId}).then(function(user) {
+            res.send(user);
+        });
+    });
 
     router.post('/login', function (req, res) {
         user.getUser({ email: req.body.email }).then(function(user) {

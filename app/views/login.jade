@@ -1,0 +1,9 @@
+div.small.ui.olive.button(ng-click="showLogin()", ng-show="!user.isAuthenticated()") Login
+div.ui.floating.labeled.icon.dropdown.button(ng-show="user.isAuthenticated()")
+  i.user.icon
+  span.text(ng-bind="username")
+  div.menu
+    div.item(ng-click="showAddNode()")
+      i.add.icon
+      | Add new node
+    div.item(ng-click="user.logout()") Logout

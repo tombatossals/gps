@@ -27,6 +27,7 @@ router.get('/ping/:nodeName', function(req, res) {
         var node = nodes[0];
 
         var a = util.format('%s/%s/ping/ping-%s.rrd', rrdpath, hostname, node.mainip);
+        console.log(a);
         if (!fs.existsSync(a)) {
             res.send(404);
             return;
@@ -142,7 +143,6 @@ var getRRDFiles = function(n1, n2, link) {
         } else {
           iface = link.nodes[1].iface;
         }
-        iface = iface.replace(/:[0-9]+\./, '.');
         b = util.format('%s/%s/snmp/if_octets-%s.rrd', rrdpath, n1.name, iface);
     } else {
         a = util.format('%s/%s/links/bandwidth-%s.rrd', rrdpath, n2.name, n1.name);
@@ -151,10 +151,11 @@ var getRRDFiles = function(n1, n2, link) {
         } else {
           iface = link.nodes[0].iface;
         }
-        iface = iface.replace(/:[0-9]+/, '');
         b = util.format('%s/%s/snmp/if_octets-%s.rrd', rrdpath, n2.name, iface);
     }
 
+    a = a.replace(/:[0-9]+\./, '.');
+    b = b.replace(/:[0-9]+\./, '.');
     return {
         a: a,
         b: b
@@ -188,7 +189,7 @@ router.get('/bandwidth/:n1/:n2', function (req, res) {
             a = a.replace(':3.rrd', '.rrd').replace(':4.rrd', '.rrd').replace(':2.rrd', '.rrd');
             b = b.replace(':3.rrd', '.rrd').replace(':4.rrd', '.rrd').replace(':2.rrd', '.rrd');
             if (!fs.existsSync(a) || !fs.existsSync(b)) {
-                res.send(404);
+                res.sendStatus(404);
                 return;
             }
 

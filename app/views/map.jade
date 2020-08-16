@@ -9,7 +9,6 @@ block content
             div.ui.ng-view
 
         div.ui.pusher.full
-            div.small.ui.olive.button.login(ng-click="user.showLogin()", ng-show="!user.isAuthenticated()") Login
-            div.small.ui.red.button.login(ng-click="user.logout()", ng-show="user.isAuthenticated()") Logout
-
-            leaflet.full(center='center', bounds='bounds', markers='nodes', paths='paths', event-broadcast='events', layers='layers')
+            div.login
+                include login
+            leaflet.full(id="main", center='center', bounds='bounds', markers='nodes', paths='paths', event-broadcast='events', layers='layers')

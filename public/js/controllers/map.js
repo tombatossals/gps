@@ -10,13 +10,12 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
 
     $scope.api = gpsService.api;
     $scope.user = gpsService.user;
-
     $http.get('json/center.json').success(function(data) {
-	      $scope.center = data.center;
+      $scope.center = data.center;
     });
 
     angular.extend($scope, {
-	    center: {},
+        center: {},
         nodes: {},
         paths: {},
         linksPromise: $q.defer(),
@@ -35,15 +34,15 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
         },
         layers: {
             baselayers: {
-                googleHybrid: {
-                    name: 'Google Hybrid',
-                    layerType: 'HYBRID',
-                    type: 'google'
-                },
                 osm: {
                     name: 'OpenStreetMap',
                     url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     type: 'xyz'
+                },
+                googleHybrid: {
+                    name: 'Google Hybrid',
+                    layerType: 'HYBRID',
+                    type: 'google'
                 }
             }, overlays: {
                 discovered: {
@@ -78,7 +77,7 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
     };
 
     $scope.$on('$routeChangeSuccess', function (event, route) {
-
+        console.log('router');
         if (angular.isDefined(route.params.node)) {
             $scope.nodesPromise.promise.then(function(nodes) {
                 showSidebar(nodes[route.params.node]);
@@ -125,6 +124,7 @@ app.controller('MapController', function($scope, $http, $timeout, $location, $ro
         $location.url('/node/' + node.name);
     });
 
+	  console.log('lala');
     $http.get('/api/node/').success(function(nodes) {
         for (var i in nodes) {
             var node = nodes[i];

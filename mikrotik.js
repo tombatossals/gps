@@ -55,8 +55,8 @@ var getConnectedUsers = function(node) {
 	    password: password
     });
 
-    connection.connect().then(function(conn) {
-    	conn.write('/interface/wireless/registration-table/print').then(function resolved(parsed) {
+    connection.getConnectPromise().then(function(conn) {
+    	conn.getCommandPromise('/interface/wireless/registration-table/print').then(function resolved(parsed) {
 	    var users = { good: 0, bad: 0 };
             for (var i in parsed) {
                 var item = parsed[i];
@@ -96,9 +96,13 @@ var getips = function(node) {
 	    password: password
     });
 
-
-    connection.connect().then(function(conn) {
-    	conn.write('/ip/address/print').then(function resolved(parsed) {
+    var connection = Mikronode.getConnection(ip, username, password, { 
+	    tls: tls, 
+	    rejectUnauthorized : false,
+	    closeOnDone : true
+    });
+    connection.getConnectPromise().then(function(conn) {
+    	conn.getCommandPromise('/ip/address/print').then(function resolved(parsed) {
             var interfaces = [];
             for (var i in parsed) {
                 var item = parsed[i];
@@ -134,8 +138,13 @@ var getNeighborInfo = function(node) {
 	    password: password
     });
 
-    connection.connect().then(function(conn) {
-    	conn.write('/routing/ospf/neighbor/print').then(function resolved(parsed) {
+    var connection = Mikronode.getConnection(ip, username, password, { 
+	    tls: tls, 
+	    rejectUnauthorized : false,
+	    closeOnDone : true
+    });
+    connection.getConnectPromise().then(function(conn) {
+    	conn.getCommandPromise('/routing/ospf/neighbor/print').then(function resolved(parsed) {
             deferred.resolve(parsed);
         });
     });
@@ -161,8 +170,13 @@ var getOSPFInstanceInfo = function(node) {
 	    password: password
     });
 
-    connection.connect().then(function(conn) {
-    	conn.write('/routing/ospf/instance/print', '=status').then(function resolved(parsed) {
+    var connection = Mikronode.getConnection(ip, username, password, { 
+	    tls: tls, 
+	    rejectUnauthorized : false,
+	    closeOnDone : true
+    });
+    connection.getConnectPromise().then(function(conn) {
+    	conn.getCommandPromise('/routing/ospf/instance/print', '=status').then(function resolved(parsed) {
             deferred.resolve(parsed[0]);
         });
     });
@@ -188,8 +202,13 @@ var getResourceInfo = function(node) {
 	    password: password
     });
 
-    connection.connect().then(function(conn) {
-    	conn.write('/system/resource/print').then(function resolved(parsed) {
+    var connection = Mikronode.getConnection(ip, username, password, { 
+	    tls: tls, 
+	    rejectUnauthorized : false,
+	    closeOnDone : true
+    });
+    connection.getConnectPromise().then(function(conn) {
+    	conn.getCommandPromise('/system/resource/print').then(function resolved(parsed) {
             deferred.resolve(parsed[0]);
         });
     });
@@ -215,8 +234,13 @@ var getRouterboardInfo = function(node) {
 	    password: password
     });
 
-    connection.connect().then(function(conn) {
-    	conn.write('/system/routerboard/print').then(function resolved(parsed) {
+    var connection = Mikronode.getConnection(ip, username, password, { 
+	    tls: tls, 
+	    rejectUnauthorized : false,
+	    closeOnDone : true
+    });
+    connection.getConnectPromise().then(function(conn) {
+    	conn.getCommandPromise('/system/routerboard/print').then(function resolved(parsed) {
             deferred.resolve(parsed[0]);
         });
     });
@@ -242,8 +266,13 @@ var getRoutingTable = function(node, print) {
 	    password: password
     });
 
-    connection.connect().then(function(conn) {
-    	conn.write('/ip/route/print', '=.proplist=.id,active,dst-address,gateway,distance').then(function resolved(parsed) {
+    var connection = Mikronode.getConnection(ip, username, password, { 
+	    tls: tls, 
+	    rejectUnauthorized : false,
+	    closeOnDone : true
+    });
+    connection.getConnectPromise().then(function(conn) {
+    	conn.getCommandPromise('/ip/route/print', '=.proplist=.id,active,dst-address,gateway,distance').then(function resolved(parsed) {
             var routing = {
                 total: 0,
                 active: 0,
@@ -285,8 +314,13 @@ var traceroute = function(node, remoteip) {
 	    password: password
     });
 
-    connection.connect().then(function(conn) {
-    	conn.write('/tool/traceroute', ['=count=1', '=address=' + remoteip ]).then(function resolved(parsed) {
+    var connection = Mikronode.getConnection(ip, username, password, { 
+	    tls: tls, 
+	    rejectUnauthorized : false,
+	    closeOnDone : true
+    });
+    connection.getConnectPromise().then(function(conn) {
+    	conn.getCommandPromise('/tool/traceroute', ['=count=1', '=address=' + remoteip ]).then(function resolved(parsed) {
             var path = [];
             for (var i in parsed) {
                 var item = parsed[i];
@@ -301,38 +335,36 @@ var traceroute = function(node, remoteip) {
     return deferred.promise.timeout(60000);
 };
 
-var runBandWidthTest = function(link, n1, n2, direction, conn) {
+var runBandWidthTest = function(link, n1, n2, direction, chan, conn) {
     var df = Q.defer();
     var username = n2.username;
     var password = n2.password;
     var proto = 'udp';
     var testip = getTestingIp(link, n2);
     var bandwidth = [];
-   var  done = false;
     var current = {
         transmit: 'tx-current',
         receive: 'rx-current'
     };
 
-    var stream = conn.stream(['/tool/bandwidth-test', '=address=' + testip, '=user=' + username, '=password=' + password, '=protocol=' + proto, '=direction=' + direction, '=duration=' + duration], function(err, packet) {
+    chan.write(['/tool/bandwidth-test', '=address=' + testip, '=user=' + username, '=password=' + password, '=protocol=' + proto, '=direction=' + direction, '=duration=' + duration], function(data) {
+      chan.on('data', function(data) {
+          var parsed = Mikronode.parseItems(data);
+          if (parsed && parsed[0] && parsed[0][current[direction]] > 0) {
+              bandwidth.push(parseInt(parsed[0][current[direction]]));
+          }
+      });
 
-	     if (done) return;
-      if (packet&& packet[0] && packet[0][current[direction]] > 0) {
-          bandwidth.push(parseInt(packet[0][current[direction]]));
-      }
-
-      if (packet.length === 0) { 
+      chan.on('done', function(data) {
           var avg = 0;
           if (bandwidth.length) {
               var sum = bandwidth.reduce(function(a, b) { return a + b });
               avg = sum / bandwidth.length;
           }
-	      stream.stop().then(function() {
-		      conn.close();
-                      df.resolve(parseInt(avg));
-		      done = true;
-	      });
-      }
+	  chan.removeAllListeners('data');
+	  chan.removeAllListeners('done');
+          df.resolve(parseInt(avg));
+      });
     });
 
     return df.promise.timeout(60000);
@@ -342,36 +374,35 @@ var bandwidthTest = function(link, n1, n2) {
     var df = Q.defer();
     var tls = apissl;
 
-	/*
     if (n1.apissl !== undefined) {
 	tls = n1.apissl;
     }
-*/
-    var conn = new RosApi({
-	    host: n1.mainip,
-	    user: n1.username,
-	    password: n1.password
+
+    var connection = new RosApi({
+	    host: ip,
+	    user: username,
+	    password: password
     });
 
-    conn.connect().then(function() {
-        runBandWidthTest(link, n1, n2, 'transmit', conn).then(function(tx) {
-            conn = new RosApi({
-	        host: n1.mainip,
-	        user: n1.username,
-	        password: n1.password
-            });
-            conn.connect().then(function() {
-                runBandWidthTest(link, n1, n2, 'receive', conn).then(function(rx) {
-                    console.log(util.format('PUTVAL "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, interval, tx, rx));
-                    df.resolve({
-		        n1: n1,
-		        n2: n2,
-		        tx: tx,
-		        rx: rx
-		    });
-                }).catch(function(err) {
-		    df.reject(err);
-	        });
+    var connection = Mikronode.getConnection(n1.mainip, n1.username, n1.password, { 
+	    tls: tls, 
+	    rejectUnauthorized : false,
+	    closeOnDone: true
+    });
+
+    connection.getConnectPromise().then(function(conn) {
+        var chan=conn.openChannel();
+        runBandWidthTest(link, n1, n2, 'transmit', chan, conn).then(function(tx) {
+            runBandWidthTest(link, n1, n2, 'receive', chan, conn).then(function(rx) {
+                console.log(util.format('PUTVAL "%s/links/bandwidth-%s" interval=%s N:%s:%s', n1.name, n2.name, interval, tx, rx));
+                df.resolve({
+		    n1: n1,
+		    n2: n2,
+		    tx: tx,
+		    rx: rx
+		});
+            }).catch(function(err) {
+		df.reject(err);
 	    });
         }).catch(function(err) {
 	   df.reject(err);

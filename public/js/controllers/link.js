@@ -4,15 +4,10 @@
 
 var app = angular.module('gps');
 
-var saturationColor = {
-  0: "#491",
-  1: "#FFFF00",
-  2: "#FF8800",
-  3: "#FF0000"
-};
+app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, leafletData, $window, $rootScope) {
 
-app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, leafletData, $window) {
-
+    $('.ui.dropdown').dropdown();
+    
     angular.extend($scope, {
         center: {},
         layers: {
@@ -43,6 +38,13 @@ app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, l
         $window.location.href = '/#/node/' + node.name;
     });
 
+    $rootScope.$on('linkUpdated', function(data) {
+        var n1 = $scope.nodes[$scope.link.nodes[0].name];
+        var n2 = $scope.nodes[$scope.link.nodes[1].name];
+        $scope.paths[n1.name + "_" + n2.name].color = $rootScope.api.getColor($scope.link);
+        console.log(data);
+    });
+
     $scope.$on('$routeChangeSuccess', function (event, route){
 
         if (!route || !route.params) {
@@ -66,7 +68,7 @@ app.controller('LinkController', function($scope, $http, leafletBoundsHelpers, l
             $scope.paths[n1.name + "_" + n2.name] = {
                 weight: weight,
                 saturation: data.link.saturation,
-                color: saturationColor[data.link.saturation],
+                color: $rootScope.api.getColor($scope.link),
                 label: {
                     message: '<p>' + data.link.distance + ' meters</p>'
                 },

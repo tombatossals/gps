@@ -1,11 +1,11 @@
 {
-    "name": "PoblaCultura",
+    "name": "Ulloa13",
     "system": "mikrotik",
-    "mainip": "10.90.85.94",
+    "mainip": "10.90.84.33",
     "username": "gps",
     "password": "guifirulez",
     "latlng": {
-        "lat": "40.100642",
-        "lng": "-0.000633"
+        "lat": "39.983468",
+        "lng": "-0.030395"
     }
 }

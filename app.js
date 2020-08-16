@@ -5,18 +5,18 @@ var express = require('express'),
   glob = require('glob'),
   mongoose = require('mongoose');
 
-mongoose.connect(config.db);
-var db = mongoose.connection;
-db.on('error', function () {
-  throw new Error('unable to connect to database at ' + config.db);
+mongoose.Promise = require('q').promise;
+var promise = mongoose.connect(config.db, { useMongoClient: true });
+promise.then(function(db) {
+  var models = glob.sync(config.root + '/app/models/*.js');
+  models.forEach(function (model) {
+    require(model);
+  });
+  var app = express();
+
+  require('./config/express')(app, config);
+
+  app.listen(config.port);
+}).fail(function(err) {
+  console.log(err);
 });
-
-var models = glob.sync(config.root + '/app/models/*.js');
-models.forEach(function (model) {
-  require(model);
-});
-var app = express();
-
-require('./config/express')(app, config);
-
-app.listen(config.port);

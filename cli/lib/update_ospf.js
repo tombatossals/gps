@@ -12,6 +12,10 @@ var Q         = require('q');
 var getLinkInformation = function(neighbor, node) {
     var df = Q.defer();
 
+    if (!neighbor) {
+	df.reject("Neighbor undefined.")
+    }
+
     linkModel.getLinkByIPs([node.mainip, neighbor.address]).then(function(link) {
         var nodes = link.nodes;
         var pos = link.nodes[0].name === node.name ? 0:1;
