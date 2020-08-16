@@ -1,7 +1,8 @@
 'use strict';
 
 var apissl = require('../../config/gps').apissl || false;
-var RosApi = require('node-routeros').RouterOSAPI;
+var api = require('mikronode-tls');
+>>>>>>> 137b9037a52d226db273e34aab2e18951a46ba20
 var util = require('util');
 var Netmask  = require('netmask').Netmask;
 var interval = require('../../config/gps').interval;
